@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+  "scikit-build-core>=0.10",
+  "pybind11>=2.12"
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "finelpy"
+version = "0.1.1"
+description = "Finite Element module"
+authors = [{ name = "Heitor Lopes", email = "hnlopes@unicamp.br" }]
+requires-python = ">=3.8"
+license-files = ["LICEN[CS]E*"]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+]
+
+# [project.urls]
+# Homepage = "https://github.com/yourusername/finelpy"
+# Source = "https://github.com/yourusername/finelpy"
+# Issues = "https://github.com/yourusername/finelpy/issues"
+
+[tool.scikit-build]
+wheel.packages = ["src/finelpy"]
+sdist.include = ["finelpy/**"]
+
+[tool.setuptools.package-data]
+finelpy = ["*.pyi", "stubs/finelpy/*.pyi","*.dll"]
+
+[tool.scikit-build.cmake]
+args = []
+build-type = "Release"
+verbose = false
+
