@@ -94,18 +94,10 @@ namespace finelc{
     }
 
 
-
-
-
-
-
-
-
     Vector Quad9::N(const Vector& loc){
 
         double xi = loc(0);
         double eta = loc(1);
-
 
         Vector N(number_of_nodes);
 

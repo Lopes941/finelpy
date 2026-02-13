@@ -3,6 +3,8 @@
 #include <finelc/mesh/meshers.h>
 
 
+#include <algorithm>
+
 namespace finelc{
 
 
@@ -45,6 +47,15 @@ namespace finelc{
     Node_ptr Mesh::get_node(int nd)const{
         return nodes.at(nd);
     }    
+
+    int Mesh::find_node(const Point& p)const{
+        auto it = std::min_element(nodes.begin(), nodes.end(),
+        [&](const Point_ptr a, const Point_ptr b){
+            return dist(*a,p) < dist(*b,p);
+        });
+
+        return static_cast<int>(std::distance(nodes.begin(), it));
+    }
 
     const VectorNodes& Mesh::get_nodes() const{
         return nodes;

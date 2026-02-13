@@ -1,4 +1,4 @@
-from .elements import pyElement
+from .element import pyElement
 
 from ..core.element import ShapeType, eval_lagrange, eval_lagrange_derivative, move_element_to_Cpp
 from ..core.analysis import DOFType
@@ -70,7 +70,7 @@ class LineElement(pyElement):
     def Izz(self) -> float:
         return self.material.IZZ
     
-class BarElementExercise(LineElement):
+class IncompleteBarElement(LineElement):
     def __init__(self, material, order: int = 1):
         super().__init__(material, order)
 
@@ -94,7 +94,7 @@ class BarElementExercise(LineElement):
     def D(self, *args, **kargs):
         return np.array([[self.material.E * self.material.A]])
     
-class BeamElementExercise(LineElement):
+class IncompleteBeamElement(LineElement):
     def __init__(self, material, order: int = 1):
         super().__init__(material, order)
 
@@ -118,7 +118,7 @@ class BeamElementExercise(LineElement):
     def D(self, *args, **kargs):
         return np.array([[self.material.E * self.Izz]])
 
-class TrussElementExercise(LineElement):
+class IncompleteTrussElement(LineElement):
     def __init__(self, material, order: int = 1):
         self.R_ = None
         self.theta_ = None
@@ -167,9 +167,7 @@ class TrussElementExercise(LineElement):
         return self.dNdxi_shape(loc)/ self.J()
     
 
-
-
-class BarElement(BarElementExercise):
+class BarElement(IncompleteBarElement):
 
     def __init__(self, material, order: int = 1):
         super().__init__(material, order)
@@ -197,7 +195,7 @@ class BarElement(BarElementExercise):
     def get_NX(self,loc, ue):
         return self.A * self.get_stress(loc, ue)
     
-class BeamElement(BeamElementExercise):
+class BeamElement(IncompleteBeamElement):
 
     def __init__(self, material):
         super().__init__(material, 1)

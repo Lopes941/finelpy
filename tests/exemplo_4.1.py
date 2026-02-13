@@ -1,7 +1,7 @@
 import finelpy as fp
 
 import numpy as np
-from finelpy.elements.line_elements import BarElement
+from finelpy.element.line_elements import BarElement
 from matplotlib import pyplot as plt
 
 

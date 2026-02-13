@@ -112,7 +112,7 @@ namespace pybind11 { namespace detail {
 
         public:
 
-            PYBIND11_TYPE_CASTER(finelc::VectorNodes, _("numpy.ndarray[float64, shape=(n,3)]"));
+            PYBIND11_TYPE_CASTER(finelc::VectorNodes, _("numpy.ndarray[float, shape=(n,3)]"));
 
             // Python -> C++
             bool load(handle src, bool){
@@ -178,7 +178,7 @@ namespace pybind11 { namespace detail {
 
         public:
 
-            PYBIND11_TYPE_CASTER(VectorPts, _("numpy.ndarray[float64, shape=(n,3)]"));
+            PYBIND11_TYPE_CASTER(VectorPts, _("numpy.ndarray[float, shape=(n,3)]"));
 
             // Python -> C++
             bool load(handle src, bool){
@@ -208,7 +208,7 @@ namespace pybind11 { namespace detail {
 
         public:
 
-            PYBIND11_TYPE_CASTER(GridData, _("Tuple[numpy.ndarray[float64, shape=(n,3)], numpy.ndarray[float64, shape=(n,)]]"));
+            PYBIND11_TYPE_CASTER(GridData, _("Tuple[numpy.ndarray[float, shape=(n,3)], numpy.ndarray[float, shape=(n,)]]"));
 
             // Python -> C++
             bool load(handle src, bool){

@@ -27,7 +27,7 @@ namespace pybind11 { namespace detail {
 
         public:
 
-            PYBIND11_TYPE_CASTER(finelc::Matrix, _("Matrix"));
+            PYBIND11_TYPE_CASTER(finelc::Matrix, _("numpy.ndarray"));
 
             // Python -> C++
             bool load(handle src, bool){

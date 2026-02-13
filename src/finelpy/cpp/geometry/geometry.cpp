@@ -21,15 +21,22 @@ namespace finelc{
         return Point(x*val, y*val, z*val);
     }
 
-    double dist(const Point& p1, const Point& p2){
+    double dist2(const Point& p1, const Point& p2){
         Point diff = p2-p1;
-        return std::sqrt(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
+        return diff.x*diff.x + diff.y*diff.y + diff.z*diff.z;
+    }
+
+    double dist(const Point& p1, const Point& p2){
+        return std::sqrt(dist2(p1,p2));
     }
 
     double Line::length()const{
         return dist(p1,p2);
     }
 
+    double Line::length2()const{
+        return dist2(p1,p2);
+    }
     
 
     bool IArea::is_inside(const Point& p)const{

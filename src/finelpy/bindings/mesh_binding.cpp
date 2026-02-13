@@ -80,6 +80,8 @@ void bind_mesh(py::module_& handle){
         
         .def("find_element", &Mesh::find_element)
 
+        .def("find_node", &Mesh::find_node)
+
         .def_property_readonly("ravel_elements",
             [](const Mesh &self) -> std::vector<std::vector<std::vector<double>>> {
 

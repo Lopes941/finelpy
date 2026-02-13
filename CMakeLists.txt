@@ -9,7 +9,6 @@ find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 REQUIRED)
 
 
-
 # ================================
 # FINELPY SOURCE FILES
 # ================================
@@ -96,43 +95,71 @@ endif()
 # PETSc
 # ================================
 
-# find_package(PkgConfig QUIET)
+find_package(PkgConfig QUIET)
+
+if(PkgConfig_FOUND)
+
+    if(DEFINED ENV{CONDA_PREFIX})
+        set(ENV{PKG_CONFIG_PATH} "$ENV{CONDA_PREFIX}/lib/pkgconfig")
+        message(STATUS "Using PKG_CONFIG_PATH=$ENV{PKG_CONFIG_PATH}")
+    else()
+        message(STATUS "CONDA_PREFIX is not set — activate your conda environment first")
+    endif()
+
+    pkg_check_modules(PETSC QUIET PETSc)
+endif()
 
 
-# if(PkgConfig_FOUND)
-#     set(ENV{PKG_CONFIG_PATH} "ENV{CONDA_PREFIX}/lib/pkgconfig")
-#     find_package(MPI QUIET)
-#     pkg_check_modules(PETSC QUIET PETSc)
-# endif()
+if(PETSC_FOUND AND PkgConfig_FOUND)
 
+    message(STATUS "PETSc found: ${PETSC_DIR}")
 
-# if(PETSC_FOUND AND PkgConfig_FOUND AND MPI_FOUND)
+    # Query PETSc's MPI compiler wrappers
+    execute_process(
+        COMMAND pkg-config --variable=mpicc PETSc
+        OUTPUT_VARIABLE PETSC_MPICC
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 
-#         message(STATUS "PETSc found: ${PETSC_DIR}")
+    execute_process(
+        COMMAND pkg-config --variable=mpicxx PETSc
+        OUTPUT_VARIABLE PETSC_MPICXX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if(PETSC_MPICC AND PETSC_MPICXX)
+        message(STATUS "PETSc MPI C compiler:  ${PETSC_MPICC}")
+        message(STATUS "PETSc MPI CXX compiler: ${PETSC_MPICXX}")
+
+        set(MPI_C_COMPILER   ${PETSC_MPICC}  CACHE FILEPATH "" FORCE)
+        set(MPI_CXX_COMPILER ${PETSC_MPICXX} CACHE FILEPATH "" FORCE)
+    endif()
+    
+    find_package(MPI REQUIRED)
+
+    add_library(PETSc::PETSc INTERFACE IMPORTED)
+
+    target_include_directories(PETSc::PETSc INTERFACE
+        ${PETSC_INCLUDE_DIRS}
+    )
+
+    target_link_libraries(PETSc::PETSc INTERFACE
+        ${PETSC_LIBRARIES}
+        MPI::MPI_CXX
+    )
+
+    target_compile_options(PETSc::PETSc INTERFACE
+        ${PETSC_CFLAGS_OTHER}
+    )
+
+    target_link_libraries(core PRIVATE PETSc::PETSc)
+    target_compile_definitions(core PRIVATE USE_PETSC)
+
+            
         
-#         add_library(PETSc::PETSc INTERFACE IMPORTED)
-
-#         target_include_directories(PETSc::PETSc INTERFACE 
-#             ${PETSC_INCLUDE_DIRS}
-#             )
-
-#         target_link_libraries(PETSc::PETSc INTERFACE 
-#             ${PETSC_LIBRARIES}
-#             ${MPI_LIBRARIES}
-#             )
-
-#         target_compile_definitions(PETSc::PETSc INTERFACE ${PETSC_CFLAGS_OTHER})
-#         target_link_libraries(core PRIVATE PETSc::PETSc)
-#         target_compile_definitions(core PRIVATE USE_PETSC=1)
-# endif()
+endif()
 
 
-
-# if(MPI_FOUND)
-#     target_include_directories(core PRIVATE ${MPI_INCLUDE_PATH})
-#     target_link_libraries(core PRIVATE ${MPI_LIBRARIES})
-#     target_compile_definitions(core PRIVATE ${MPI_COMPILE_DEFINITIONS})
-# endif()
 
 # =================================
 # Install Python extension + stubs
@@ -140,9 +167,3 @@ endif()
 install(TARGETS core 
     LIBRARY DESTINATION finelpy
     )
-
-if(DEFINED MKL_RTLIBS)
-    install(FILES ${MKL_RTLIBS}
-        DESTINATION finelpy/mkl
-    )
-endif()

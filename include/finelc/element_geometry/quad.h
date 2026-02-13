@@ -39,7 +39,6 @@ namespace finelc{
             static double detJ(const VectorNodes& element_nodes,
                     const Vector& loc);
 
-
     };
 
 

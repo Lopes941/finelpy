@@ -24,9 +24,9 @@ namespace finelc{
             PetscObjects& obj = analysis->get_PETSc_objects();
             obj.Kmat = &analysis->get_PETSc_K();
             KSPSetOperators(obj.ksp, *obj.Kmat, *obj.Kmat);
-            PCSetReusePreconditioner(obj.pc,PETSC_TRUE);
-            PCFactorSetReuseOrdering(obj.pc, PETSC_TRUE);
-            PCFactorSetReuseFill(obj.pc, PETSC_TRUE);
+            KSPSetReusePreconditioner(obj.ksp,PETSC_FALSE);
+            PCFactorSetReuseOrdering(obj.pc, PETSC_FALSE);
+            PCFactorSetReuseFill(obj.pc, PETSC_FALSE);
             Vector u = petsc_solve_direct(
                 analysis->fg(), 
                 obj);

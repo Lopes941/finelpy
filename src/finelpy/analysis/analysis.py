@@ -1,1 +1,1 @@
-from ..core.analysis import Analysis, AnalysisBuilder
+from ..core.analysis import Analysis, AnalysisBuilder, DOFType, InterpolationScheme, InterpolationParameters

@@ -59,7 +59,7 @@ void bind_element(py::module_& handle){
         .value("TRIANGLE", IntegrationGeometry::TRIANGLE)
         ;
 
-
+        
     handle.def("get_integration_points",
         [](int number_of_points, IntegrationGeometry geo = IntegrationGeometry::REGULAR,int dimensions=1) -> py::tuple {
 
@@ -117,6 +117,10 @@ void bind_element(py::module_& handle){
         ;
     }
 
+    py::class_<IElementPhysics, std::shared_ptr<IElementPhysics>>
+        (handle, "IElementPhysics");
+
+    
 
     {
     py::class_<IElement, ElementTrampoline, std::shared_ptr<IElement>>

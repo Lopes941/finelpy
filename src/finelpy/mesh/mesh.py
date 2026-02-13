@@ -96,7 +96,6 @@ def plot_nodal2D(self,
     return fig,ax
 
 
-
 @add_method(Mesh)
 def plot_mesh2D(self,
                 element_data = None,
@@ -112,6 +111,8 @@ def plot_mesh2D(self,
 
     if (ax is None) or (fig is None):
         fig, ax = plt.subplots()
+    else:
+        ax.clear()
 
     if show_edges:
         edge_color = "blue"

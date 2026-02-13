@@ -195,15 +195,23 @@ namespace finelc{
             ~Line()=default;
 
             double length()const;
+            double length2()const;
 
             inline double distance(const Point& p)const{
-                double d1 = dist(p, p1);
-                double d2 = dist(p, p2);
 
-                if(length() + std::min(d1,d2) <= std::max(d1,d2)){
-                    return std::min(d1,d2);
+                double l2 = length2();
+
+                Vector u = (p-p1).as_vector();
+                Vector w = (p2-p1).as_vector();
+                double d = u.dot(w)/l2;
+
+                if(d<=0){
+                    return dist(p,p1);
+                }else if(d>=1){
+                    return dist(p,p2);
                 }else{
-                    return std::fabs((p2.x - p1.x) * (p.y - p1.y) - (p2.y-p1.y) * (p.x-p1.x));
+                    Point m(p1.x+d*w(0), p1.y+d*w(1), p1.z+d*w(2));
+                    return dist(p,m);
                 }
 
             }

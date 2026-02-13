@@ -17,47 +17,42 @@ t = 1
 
 O = (0,0,0)
 
-Rec = fp.Rectangle((Lx,Ly),O)
+Rec = fp.geometry.Rectangle((Lx,Ly),O)
 
 # Creating a new material
 properties = {
-    fp.MaterialProperties.YOUNGS_MOD: 210e9,
-    fp.MaterialProperties.RHO: 7850,
-    fp.MaterialProperties.POISSON: 0.3
+    fp.material.MaterialProperties.YOUNGS_MOD: 210e9,
+    fp.material.MaterialProperties.RHO: 7850,
+    fp.material.MaterialProperties.POISSON: 0.3
 }
 
-steel = fp.create_material("Steel").add_property(properties)
+steel = fp.material.create_material("Steel").add_property(properties)
 
-
-el = fp.create_element(
-        fp.ShapeType.QUAD4, 
-        fp.ModelType.PLANE_STRUCTURAL,
-        fp.ConstitutiveType.PLANE_STRESS, 
+el = fp.element.create_element(
+        fp.element.ShapeType.QUAD4, 
+        fp.element.ModelType.PLANE_STRUCTURAL,
+        fp.element.ConstitutiveType.PLANE_STRESS, 
         steel)
 
 
-mesh_gen = fp.RectangularMesh(Rec, el)
+mesh_gen = fp.mesh.RectangularMesh(Rec, el)
 mesh_gen.set_grid(nx,ny)
 mesh = mesh_gen.build()
 
 
-forc_node = Rec.right_side.nodes
-if forc_node.size%2 == 0:
-    forc_node = forc_node[forc_node.size//2:forc_node.size//2+2]
-else:
-    forc_node = forc_node[forc_node.size//2+1]
 
+an_gen = fp.analysis.AnalysisBuilder(mesh)
+an_gen.add_boundary_condition(fp.analysis.DOFType.UX,Rec.left_side,0)
+an_gen.add_boundary_condition(fp.analysis.DOFType.UY,Rec.left_side,0)
 
-an_gen = fp.AnalysisBuilder(mesh)
-an_gen.add_boundary_condition(fp.DOFType.UX,Rec.left_side,0)
-an_gen.add_boundary_condition(fp.DOFType.UY,Rec.left_side,0)
-an_gen.add_force(fp.DOFType.UY,forc_node,-10)
+forc_node = mesh.find_node((80,25))
+an_gen.add_force(fp.analysis.DOFType.UY,forc_node,-10)
 anal = an_gen.build()
 
-anal.set_interpolation(fp.InterpolationScheme.SIMP)
-anal.update_interpolation(fp.InterpolationParameters.X_MIN,1e-3)
-anal.update_interpolation(fp.InterpolationParameters.P_EXPONENT,3)
 
+anal.set_interpolation(fp.analysis.InterpolationScheme.SIMP)
+anal.update_interpolation(fp.analysis.InterpolationParameters.X_MIN,1e-3)
+anal.update_interpolation(fp.analysis.InterpolationParameters.P_EXPONENT,3)
 
 el_center = mesh.centers
 rho = np.ones(mesh.number_of_elements)*1e-3
@@ -67,7 +62,7 @@ for iel in range(mesh.number_of_elements):
 
 anal.update_pseudo_density(rho)
 
-solver_dir = fp.StaticSolver(anal, fp.SolverType.Direct)
+solver_dir = fp.solver.StaticSolver(anal, fp.solver.SolverType.Direct)
 
 print(f"Elements = {mesh.number_of_elements: ,}")
 print(f"DOFs     = {anal.num_free_dofs: ,}")

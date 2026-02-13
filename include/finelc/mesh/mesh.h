@@ -100,6 +100,16 @@ namespace finelc{
             Node_ptr get_node(int nd)const;  
 
             /**
+             * @brief Find a node from its coordinates
+             * 
+             * @param coord The coordinate of the node to retrieve
+             * 
+             * @return int Index of the node
+             * 
+             */
+            int find_node(const Point& coord)const;
+
+            /**
              * @brief Get all nodes in the mesh.
              * 
              * @return const VectorNodes& Reference to the vector of shared pointers to the nodes in the mesh.

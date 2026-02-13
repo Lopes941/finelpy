@@ -49,6 +49,8 @@ void bind_geometry(py::module_& handle){
 
             })
 
+        .def("is_inside", &IGeometry::is_inside)
+
         ;
     }
 
@@ -126,7 +128,7 @@ void bind_geometry(py::module_& handle){
                 return *self.get_lines();
             })
 
-        .def("is_inside", &IArea::is_inside)
+        // .def("is_inside", &IArea::is_inside)
         ;
     }
 
@@ -134,7 +136,20 @@ void bind_geometry(py::module_& handle){
         (handle,"Rectangle")
 
         .def(py::init<Point, 
-            Point>())
+            Point>(),
+            py::arg("dimensions"),
+            py::arg("origin")=py::make_tuple(0,0),
+            R"pbdoc(
+            Create a rectangle with given dimensions and origin.
+
+            Parameters
+            ----------
+            dimensions : list of float, length 2 or 3
+                Dimensions lx, ly and t (thickness).
+            origin: list of float, length 2 or 3, optional
+                Optional origin for first point.
+            )pbdoc"
+        )
         
         .def_property_readonly("dimensions", &Rectangle::get_dimension)
 

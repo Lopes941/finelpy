@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 from ..core.geometry import IGeometry
-from ..core.geometry import Rectangle, Line
+from ..core.geometry import Rectangle, Line, AreaType
+
+
 
 from ..utils import add_method
 

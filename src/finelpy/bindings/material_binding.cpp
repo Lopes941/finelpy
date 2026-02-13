@@ -1,4 +1,5 @@
 #include <finelc/material/material.h>
+#include <finelc/material/constitutive.h>
 
 #include <finelc/binding/bindings.h>
 #include <finelc/binding/matrix_binding.h>
@@ -17,7 +18,6 @@ namespace py = pybind11;
 void bind_material(py::module_& handle){
 
      py::enum_<MaterialProperties>(handle, "MaterialProperties")
-
           .value("RHO", MaterialProperties::RHO)
           .value("YOUNGS_MOD", MaterialProperties::YOUNGS_MOD)
           .value("YOUNGS_MOD_XX", MaterialProperties::YOUNGS_MOD_XX)
@@ -94,13 +94,31 @@ void bind_material(py::module_& handle){
           .def_static("get_catalogue", &MaterialCatalogue::get_catalogue,
                          "Get the singleton MaterialCatalogue")
 
-          .def("create_material", &MaterialCatalogue::create_material,
+          .def("create_material", 
+               [](MaterialCatalogue& self, const std::string& name) -> Material_ptr {
+                    return self.create_material(name);
+               },
                py::return_value_policy::reference_internal,
-               "Create a new material and return a reference to it")
+               R"pbdoc(
+               Create a rectangle with given dimensions and origin.
+
+               Parameters
+               ----------
+               name : string
+                    name of the material.
+               
+               Returns
+               ----------
+               Material
+                    Reference to created material.
+               )pbdoc")
 
           .def("get_material", &MaterialCatalogue::get_material,
                py::return_value_policy::reference_internal,
                "Get an existing material by name")
           ;
+
+     py::class_<IConstitutiveModel, std::shared_ptr<IConstitutiveModel>>
+        (handle, "IConstitutiveModel");
 
 }
