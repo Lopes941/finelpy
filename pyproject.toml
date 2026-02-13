@@ -7,7 +7,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "finelpy"
-version = "0.1.1"
+version = "0.1.2"
 description = "Finite Element module"
 authors = [{ name = "Heitor Lopes", email = "hnlopes@unicamp.br" }]
 requires-python = ">=3.8"
