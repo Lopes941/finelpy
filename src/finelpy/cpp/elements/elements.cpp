@@ -145,7 +145,7 @@ namespace finelc{
 
             Solver sol(Jac);
 
-            Point dx = -sol.solve(F);
+            Vector dx = -sol.solve(F);
             x0 += dx;
             if(dist(dx,Point(0,0,0)) < tol){
                 break;

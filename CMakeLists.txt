@@ -110,54 +110,54 @@ if(PkgConfig_FOUND)
 endif()
 
 
-if(PETSC_FOUND AND PkgConfig_FOUND)
+# if(PETSC_FOUND AND PkgConfig_FOUND)
 
-    message(STATUS "PETSc found: ${PETSC_DIR}")
+#     message(STATUS "PETSc found: ${PETSC_DIR}")
 
-    # Query PETSc's MPI compiler wrappers
-    execute_process(
-        COMMAND pkg-config --variable=mpicc PETSc
-        OUTPUT_VARIABLE PETSC_MPICC
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+#     # Query PETSc's MPI compiler wrappers
+#     execute_process(
+#         COMMAND pkg-config --variable=mpicc PETSc
+#         OUTPUT_VARIABLE PETSC_MPICC
+#         OUTPUT_STRIP_TRAILING_WHITESPACE
+#     )
 
-    execute_process(
-        COMMAND pkg-config --variable=mpicxx PETSc
-        OUTPUT_VARIABLE PETSC_MPICXX
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+#     execute_process(
+#         COMMAND pkg-config --variable=mpicxx PETSc
+#         OUTPUT_VARIABLE PETSC_MPICXX
+#         OUTPUT_STRIP_TRAILING_WHITESPACE
+#     )
 
-    if(PETSC_MPICC AND PETSC_MPICXX)
-        message(STATUS "PETSc MPI C compiler:  ${PETSC_MPICC}")
-        message(STATUS "PETSc MPI CXX compiler: ${PETSC_MPICXX}")
+#     if(PETSC_MPICC AND PETSC_MPICXX)
+#         message(STATUS "PETSc MPI C compiler:  ${PETSC_MPICC}")
+#         message(STATUS "PETSc MPI CXX compiler: ${PETSC_MPICXX}")
 
-        set(MPI_C_COMPILER   ${PETSC_MPICC}  CACHE FILEPATH "" FORCE)
-        set(MPI_CXX_COMPILER ${PETSC_MPICXX} CACHE FILEPATH "" FORCE)
-    endif()
+#         set(MPI_C_COMPILER   ${PETSC_MPICC}  CACHE FILEPATH "" FORCE)
+#         set(MPI_CXX_COMPILER ${PETSC_MPICXX} CACHE FILEPATH "" FORCE)
+#     endif()
     
-    find_package(MPI REQUIRED)
+#     find_package(MPI REQUIRED)
 
-    add_library(PETSc::PETSc INTERFACE IMPORTED)
+#     add_library(PETSc::PETSc INTERFACE IMPORTED)
 
-    target_include_directories(PETSc::PETSc INTERFACE
-        ${PETSC_INCLUDE_DIRS}
-    )
+#     target_include_directories(PETSc::PETSc INTERFACE
+#         ${PETSC_INCLUDE_DIRS}
+#     )
 
-    target_link_libraries(PETSc::PETSc INTERFACE
-        ${PETSC_LIBRARIES}
-        MPI::MPI_CXX
-    )
+#     target_link_libraries(PETSc::PETSc INTERFACE
+#         ${PETSC_LIBRARIES}
+#         MPI::MPI_CXX
+#     )
 
-    target_compile_options(PETSc::PETSc INTERFACE
-        ${PETSC_CFLAGS_OTHER}
-    )
+#     target_compile_options(PETSc::PETSc INTERFACE
+#         ${PETSC_CFLAGS_OTHER}
+#     )
 
-    target_link_libraries(core PRIVATE PETSc::PETSc)
-    target_compile_definitions(core PRIVATE USE_PETSC)
+#     target_link_libraries(core PRIVATE PETSc::PETSc)
+#     target_compile_definitions(core PRIVATE USE_PETSC)
 
             
         
-endif()
+# endif()
 
 
 
