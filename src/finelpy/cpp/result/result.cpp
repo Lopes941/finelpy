@@ -14,9 +14,6 @@
 
 namespace finelc{
 
-
-    
-
     double get_sigma_xx(const Vector& loc, const Vector& ue, IElement_ptr el){
         Vector stress = el->get_stress(loc,ue);
         return stress(0);
@@ -456,6 +453,22 @@ namespace finelc{
 
         return grid_data;
 
+    }
+
+    double StaticResult::get_value(ResultData id, const Point& loc)const{
+
+        SupportFn support_func = get_support_func(id);
+        EvalFnPtr eval_func = get_eval_func(id);
+
+        int el_number = analysis->get_mesh()->find_element(loc);
+        IElement_ptr el = analysis->get_element(el_number);
+
+        if(!((*el).*support_func)())
+            throw std::runtime_error("The element does not support this data");
+
+        Vector ue = analysis->get_element_ue(U,el_number);
+        Vector pt = el->global_to_local(loc).as_vector();
+        return eval_func(pt,ue,el);
     }
 
     Vector compute_mean(const Vector& U, Analysis_ptr analysis, ResultData id, int gauss_pts){

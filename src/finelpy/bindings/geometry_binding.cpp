@@ -19,10 +19,10 @@ namespace py = pybind11;
 
 void bind_geometry(py::module_& handle){
 
-    py::enum_<AreaType>(handle, "AreaType")
+    py::enum_<GeometryType>(handle, "GeometryType")
 
-        .value("POLYGON", AreaType::POLYGON)
-        .value("RECTANGLE", AreaType::RECTANGLE);
+        .value("POLYGON", GeometryType::POLYGON)
+        .value("RECTANGLE", GeometryType::RECTANGLE);
 
     {
     py::class_<IGeometry, std::shared_ptr<IGeometry>>
@@ -31,19 +31,15 @@ void bind_geometry(py::module_& handle){
         .def_property_readonly("nodes",
             [](IGeometry &self) -> py::array {
 
-                int number_of_nodes = (int)self.number_of_nodes();
+                int nnodes = (int)self.number_of_nodes();
 
-                std::vector<int> nodes(number_of_nodes);
-
-                int k = 0;
-
-                for(auto node_iterator=self.begin(); node_iterator!=self.end(); ++node_iterator){
-                    nodes[k++] = node_iterator.value();
+                if(nnodes==0){
+                    return py::none();
                 }
 
-                py::array_t<int> arr(number_of_nodes);
-                if(number_of_nodes > 0){
-                    std::memcpy(arr.mutable_data(), nodes.data(), sizeof(int) * number_of_nodes);
+                py::array_t<int> arr(nnodes);
+                if(nnodes > 0){
+                    std::memcpy(arr.mutable_data(), self.nodes().data(), sizeof(int) * nnodes);
                 }
                 return arr;
 
@@ -102,33 +98,11 @@ void bind_geometry(py::module_& handle){
                 return *self.get_vertices();
             })
 
-        .def_property_readonly("nodes",
-            [](IArea &self) -> py::array {
-
-                int number_of_nodes = (int)self.number_of_nodes();
-
-                std::vector<int> nodes(number_of_nodes);
-
-                int k = 0;
-
-                for(auto node_iterator=self.begin(); node_iterator!=self.end(); ++node_iterator){
-                    nodes[k++] = node_iterator.value();
-                }
-
-                py::array_t<int> arr(number_of_nodes);
-                if(number_of_nodes > 0){
-                    std::memcpy(arr.mutable_data(), nodes.data(), sizeof(int) * number_of_nodes);
-                }
-                return arr;
-
-            })
-
         .def_property_readonly("lines",
             [](IArea &self) -> std::vector<Line> {
                 return *self.get_lines();
             })
 
-        // .def("is_inside", &IArea::is_inside)
         ;
     }
 
@@ -162,6 +136,73 @@ void bind_geometry(py::module_& handle){
         .def_property_readonly("upper_side", &Rectangle::upper_side)
         .def_property_readonly("left_side", &Rectangle::left_side)
 
+        ;
+    }
+
+    {
+    py::class_<IVolume, IGeometry, std::shared_ptr<IVolume>>
+    (handle, "IVolume")
+
+        .def("name", 
+            [](IVolume& self){
+                    return self.name();
+            })
+
+        .def_property_readonly("num_vertices",
+            [](IVolume &self) -> size_t {
+                return self.get_num_vertices();
+            })
+
+        .def_property_readonly("vertices",
+            [](IVolume &self) -> std::vector<Point> {
+                return *self.get_vertices();
+            })
+
+        .def_property_readonly("lines",
+            [](IVolume &self) -> std::vector<Line> {
+                return *self.get_lines();
+            })
+
+        .def_property_readonly("faces",
+            [](IVolume &self) -> std::vector<IArea> {
+                return *self.get_faces();
+            })
+
+        ;
+    }
+
+    {
+    py::class_<Hexahedron, IVolume, std::shared_ptr<Hexahedron>>
+    (handle, "Hexahedron")
+
+        .def(py::init<Point, 
+            Point>(),
+            py::arg("dimensions"),
+            py::arg("origin")=py::make_tuple(0,0),
+            R"pbdoc(
+            Create a hexahedron with given dimensions and origin.
+
+            Parameters
+            ----------
+            dimensions : list of float, length 3
+                Dimensions lx, ly and lz.
+            origin: list of float, length 3, optional
+                Optional origin for first point.
+            )pbdoc"
+        )
+        
+        .def_property_readonly("dimensions", &Hexahedron::get_dimension)
+
+        .def_property_readonly("origin", &Hexahedron::get_origin)
+
+        .def_static("static_name", &Hexahedron::static_name)
+
+        .def_property_readonly("lower_face", &Hexahedron::lower_face)
+        .def_property_readonly("front_face", &Hexahedron::front_face)
+        .def_property_readonly("right_face", &Hexahedron::right_face)
+        .def_property_readonly("back_face", &Hexahedron::back_face)
+        .def_property_readonly("left_face", &Hexahedron::left_face)
+        .def_property_readonly("upper_face", &Hexahedron::upper_face)
         ;
     }
 

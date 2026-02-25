@@ -21,6 +21,11 @@ namespace finelc{
     extern EvalFnPtr get_eval_func(ResultData id);
     extern std::vector<Point> create_grid(int internal_pts, int num_dimensions, IntegrationGeometry geom);
 
+    struct MaxMinResult{
+        Point pt;
+        double val;
+    };
+
     class StaticResult{
 
         private:
@@ -46,27 +51,34 @@ namespace finelc{
                 return compute_grid(U,analysis,id,internal_pts);
             }
 
-            double get_max(ResultData id, int internal_pts = 10)const{
+            
+            MaxMinResult get_max(ResultData id, int internal_pts = 10)const{
                 GridData grid = grid_data(id,internal_pts);
                 double max_val = grid[0].second;
+                Point max_pt = grid[0].first;
                 for(auto& data:grid){
                     if(data.second > max_val){
+                        max_pt = data.first;
                         max_val = data.second;
                     }
                 }
-                return max_val;
+                return {max_pt,max_val};
             }
 
-            double get_min(ResultData id, int internal_pts = 10)const{
+            MaxMinResult get_min(ResultData id, int internal_pts = 10)const{
                 GridData grid = grid_data(id,internal_pts);
                 double min_val = grid[0].second;
+                Point min_pt = grid[0].first;
                 for(auto& data:grid){
                     if(data.second < min_val){
+                        min_pt = data.first;
                         min_val = data.second;
                     }
                 }
-                return min_val;
+                return {min_pt, min_val};
             }
+
+            double get_value(ResultData id, const Point& loc)const;
 
             Vector element_mean(ResultData id, int gauss_pts=10)const{
                 return compute_mean(U,analysis,id,gauss_pts);

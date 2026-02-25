@@ -446,10 +446,7 @@ namespace finelc{
     }
 
     void AnalysisBuilder::add_boundary_condition(DOFType dof, IGeometry_ptr geometry, double value){
-        std::vector<int> nodes;
-        for(auto it = geometry->begin(); it!=geometry->end(); ++it){
-            nodes.emplace_back(it.value());
-        }
+        std::vector<int> nodes = geometry->nodes();
         bc_vector.push_back(BoundaryCondition(dof,nodes,value));
     }
 

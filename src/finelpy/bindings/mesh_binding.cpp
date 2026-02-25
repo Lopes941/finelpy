@@ -95,7 +95,7 @@ void bind_mesh(py::module_& handle){
                     std::vector<std::vector<double>> el_poly;
                     el_poly.reserve(nodes.size());
 
-                    for(int n_vert=0; n_vert<el->number_of_vertices(); n_vert++){
+                    for(int n_vert=0; n_vert < nodes.size(); n_vert++){
                         el_poly.push_back({nodes[n_vert]->x, nodes[n_vert]->y});
                     }
                     element_ravel.emplace_back(std::move(el_poly));
@@ -104,46 +104,38 @@ void bind_mesh(py::module_& handle){
                 return element_ravel;
             })
 
-    //     .def("interpolate_gauss_point_values",
-    //         [](const Mesh &self, Vector nodal_values, int num_gauss_points=3) -> py::array_t<double> {
+        .def_property_readonly("ravel_surfaces",
+            [](const Mesh& self) -> py::tuple {
 
-    //             const VectorElements& elements = self.get_elements();
+                std::vector<int> num_surfaces;
+                num_surfaces.reserve(self.number_of_elements());
 
-    //             int estimate_points=0;
+                int total_num = 0;
+                for(auto el: self.get_elements()){
+                    int nsurf = el->number_of_surfaces();
+                    total_num += nsurf;
+                    num_surfaces.emplace_back(nsurf);
+                }
 
-    //             for(auto& element: elements){
-    //                 estimate_points += std::pow(num_gauss_points,element->number_of_dimensions()) + 10*(num_gauss_points+1);
-    //             }
+                std::vector<std::vector<std::vector<double>>> surface_ravel;
+                surface_ravel.reserve(total_num);
 
-    //             py::array_t<double> vec({estimate_points,4});
-    //             auto arr = vec.mutable_unchecked<2>();
+                for(auto el: self.get_elements()){
+                    for(auto surf : el->surfaces()){
 
-    //             int k = 0;
-    //             for(auto& element: elements){
-    //                 std::vector<PointWeight> gauss_points = get_gauss_points(   element->get_integration_domain(),
-    //                                                                             num_gauss_points, 
-    //                                                                             element->number_of_dimensions(),
-    //                                                                             true);
+                        const std::shared_ptr<std::vector<Point>>& vertices = surf->get_vertices();
+                        std::vector<std::vector<double>> poly;
+                        poly.reserve(vertices->size());
 
-    //                 Vector local_values = element->get_nodal_values_scalar(nodal_values);
-    //                 for(auto& p: gauss_points){
-    //                     Vector loc = p.point.as_vector();
-    //                     Vector coords = element->local_to_global(loc);
-    //                     arr(k,0) = coords(0);
-    //                     arr(k,1) = coords(1);
-    //                     arr(k,2) = coords(2);
-    //                     arr(k,3) = element->interpolate_nodal_values(loc,local_values);
-    //                     k++;
-    //                 }
-    //             }
+                        for(auto& vert : *vertices){
+                            poly.push_back({vert.x,vert.y,vert.z});
+                        }
+                        surface_ravel.emplace_back(std::move(poly));
+                    }
+                }
 
-    //             auto buf = vec.request();
-    //             return py::array_t<double>({k,4},
-    //                                         {buf.strides[0], buf.strides[1]},
-    //                                         static_cast<double*>(buf.ptr),
-    //                                         vec );
-    //         }
-    //     )
+                return py::make_tuple(num_surfaces,surface_ravel);
+            })
 
         ;
     }
@@ -161,7 +153,7 @@ void bind_mesh(py::module_& handle){
     py::class_<MeshBuilderLine, MeshBuilder, std::shared_ptr<MeshBuilderLine>>
     (handle, "LineMesh")
 
-        .def(py::init<std::shared_ptr<Line>, IElement_ptr>(),
+        .def(py::init<IGeometry_ptr, IElement_ptr>(),
              py::arg("line"),
              py::arg("element"))
 
@@ -179,7 +171,7 @@ void bind_mesh(py::module_& handle){
     py::class_<MeshBuilderRectangle, MeshBuilder, std::shared_ptr<MeshBuilderRectangle>>
     (handle, "RectangularMesh")
 
-        .def(py::init<std::shared_ptr<IArea>, IElement_ptr>(),
+        .def(py::init<IGeometry_ptr, IElement_ptr>(),
              py::arg("domain"),
              py::arg("element"))
 
@@ -193,6 +185,23 @@ void bind_mesh(py::module_& handle){
     }
 
     {
+    py::class_<MeshBuilderHexahedron, MeshBuilder, std::shared_ptr<MeshBuilderHexahedron>>
+    (handle, "HexMesh")
+
+        .def(py::init<IGeometry_ptr, IElement_ptr>(),
+             py::arg("domain"),
+             py::arg("element"))
+
+        .def("set_element_size", 
+            &MeshBuilderHexahedron::set_element_size)
+
+            
+        .def("set_grid",
+            &MeshBuilderHexahedron::set_grid)
+        ;
+    }
+
+    {
     py::class_<MeshBuilderFrame, MeshBuilder, std::shared_ptr<MeshBuilderFrame>>
     (handle, "FrameMesh")
 
@@ -201,6 +210,10 @@ void bind_mesh(py::module_& handle){
             py::arg("node_coord"),
             py::arg("inci"))
         ;
+    }
+
+    {py::class_<NodeIterator,NodeIterator_ptr>
+        (handle,"NodeIterator");
     }
 
 }

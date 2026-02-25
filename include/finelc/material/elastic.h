@@ -89,5 +89,35 @@ namespace finelc{
 
     };
 
+    class LinearElastic{
+
+        public:
+
+            inline static constexpr ConstitutiveType model_name = ConstitutiveType::SOLID_LINEAR_ELASTIC;
+            inline static constexpr bool linear = true;
+
+            static Matrix D(Material_ptr material,
+                            const Vector&, 
+                            const Vector&){
+
+                double E = material->get_property(MaterialProperties::YOUNGS_MOD);
+                double nu = material->get_property(MaterialProperties::POISSON);
+
+                DenseMatrix D(6,6);
+
+                D <<
+                    1.-nu, nu, nu, 0, 0, 0,
+                    nu, 1.-nu, nu, 0, 0, 0,
+                    nu, nu, 1.-nu, 0, 0, 0,
+                    0, 0, 0, (1.-2.*nu)/2., 0, 0,
+                    0, 0, 0, 0, (1.-2.*nu)/2., 0,
+                    0, 0, 0, 0, 0, (1.-2.*nu)/2.;
+                D*= E/((1.+nu)*(1.-2.*nu));
+                
+                return D;
+            }
+
+    };
+
 
 } // namespace finelc

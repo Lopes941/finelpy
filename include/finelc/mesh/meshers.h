@@ -7,7 +7,6 @@
 #include <finelc/elements/element.h>
 
 #include <finelc/mesh/mesh.h>
-#include <finelc/mesh/element_finder.h>
 
 #include <iostream>
 #include <vector>
@@ -28,7 +27,7 @@ namespace finelc{
             IElement_ptr element; // The element type used in the mesh.
             IGeometry_ptr domain; // The geometric domain of the mesh.
 
-            MeshBuilder(IElement_ptr el): element(el), mesh(std::make_shared<Mesh>()) {}
+            MeshBuilder(IElement_ptr el, IGeometry_ptr domain_): element(el), mesh(std::make_shared<Mesh>()), domain(domain_) {}
 
 
         public:
@@ -42,6 +41,70 @@ namespace finelc{
              */
             virtual Mesh_ptr build()=0;
             
+    };
+
+    /**
+     * @class MeshBuilderHexahedron
+     * 
+     * @brief Class for building rectangular finite element meshes.
+     */
+    class MeshBuilderHexahedron: public MeshBuilder{
+
+        private:
+
+            double Lx=0, Ly=0, Lz=0; // Dimensions of the hexahedron
+            double lx=0, ly=0, lz=0; // Element sizes in x, y and z directions
+            int nx=0, ny=0, nz=0; // Number of elements in x and y directions
+
+            /**
+             * @brief Set the size of the hexahedron based on the grid and element sizes.
+             */
+            void set_size_from_grid();
+
+            /**
+             * @brief Set the grid based on the hexahedron size and element sizes.
+             */
+            void create_hex();
+
+            /**
+             * @brief Populate the mesh with HEX8 elements.
+             */
+            void populate_hex8();
+
+        public:
+
+            MeshBuilderHexahedron(
+                IGeometry_ptr domain_, 
+                IElement_ptr el);
+
+            ~MeshBuilderHexahedron()=default;
+
+            /**
+             * @brief Set the size of the hexahedron.
+             * 
+             * @param lx_ Element size in the x direction.
+             * @param ly_ Element size in the y direction.
+             * @param lz_ Element size in the z direction.
+             */
+            void set_element_size(double lx_, double ly_, double lz_);
+
+            /**
+             * @brief Set the grid of the hexahedron.
+             * 
+             * @param nx_ Number of elements in the x direction.
+             * @param ny_ Number of elements in the y direction.
+             * @param nz_ Number of elements in the z direction.
+             */
+            void set_grid(int nx_, int ny_, int nz_);
+
+            /**
+             * @brief Build and return the constructed mesh.
+             * 
+             * @return Mesh_ptr A shared pointer to the constructed mesh.
+             */
+            Mesh_ptr build() final;
+
+
     };
 
     /**
@@ -85,7 +148,7 @@ namespace finelc{
         public:
 
             MeshBuilderRectangle(
-                std::shared_ptr<IArea> domain_, 
+                IGeometry_ptr domain_, 
                 IElement_ptr el);
 
             ~MeshBuilderRectangle()=default;
@@ -137,7 +200,7 @@ namespace finelc{
         public:
 
             MeshBuilderLine(
-                std::shared_ptr<Line> domain_, 
+                IGeometry_ptr domain_, 
                 IElement_ptr el);
                 
             ~MeshBuilderLine()=default;

@@ -6,7 +6,7 @@ import matplotlib.colors as colors
 
 from finelpy.geometry.geometry import IGeometry
 
-from ..core.mesh import RectangularMesh, LineMesh, FrameMesh
+from ..core.mesh import RectangularMesh, LineMesh, FrameMesh, HexMesh
 from ..core.mesh import Mesh
 
 from ..utils import add_method
@@ -132,6 +132,57 @@ def plot_mesh2D(self,
         pc = PolyCollection(polygons, array=element_data,cmap=colormap,edgecolors=edge_color)
         
     ax.add_collection(pc)
+    ax.autoscale()
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+
+    if show_colorbar and element_data is not None:
+        plt.colorbar(pc, ax=ax)
+
+    if show_nodes:
+        ax.plot(self.nodes[:,0],self.nodes[:,1],'ko',markersize=3)
+
+    return fig, ax
+
+@add_method(Mesh)
+def plot_mesh3D(self,
+                element_data = None,
+                show_colorbar=False,
+                show_edges = False,
+                show_nodes=False,
+                colormap=None,
+                facecolors="gray",
+                fig=None,
+                ax=None):
+    
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    if (ax is None) or (fig is None):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+    else:
+        ax.clear()
+
+    if show_edges:
+        edge_color = "blue"
+    else:
+        edge_color = None
+
+    num_surfaces, surfaces = self.ravel_surfaces
+
+    if element_data is None:
+        pc = Poly3DCollection(surfaces,facecolors=facecolors,edgecolors=edge_color)
+    else:
+        element_data = element_data[np.repeat(np.arange(len(num_surfaces)),num_surfaces)]
+        inds = np.where(element_data >=0.5)
+        if np.max(element_data) <= 1 and np.min(element_data) >= 0 and colormap is None:
+            pc = Poly3DCollection(np.array(surfaces)[inds],facecolors='gray',edgecolors=edge_color)
+        elif colormap is None:
+            colormap = 'viridis'
+            pc = Poly3DCollection(surfaces, array=element_data,cmap=colormap,edgecolors=edge_color)
+        
+        
+    ax.add_collection3d(pc)
     ax.autoscale()
     ax.set_aspect("equal")
     ax.set_axis_off()

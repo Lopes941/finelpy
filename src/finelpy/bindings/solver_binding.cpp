@@ -72,17 +72,34 @@ void bind_solver(py::module_& handle){
             py::arg("result_id"),
             py::arg("internal_pts")=10)
 
-        .def("get_max", &StaticResult::get_max,
+        .def("get_max", 
+            [](const StaticResult& self, ResultData id, int internal_pts) -> py::tuple {
+                MaxMinResult res = self.get_max(id,internal_pts);
+                Point pt = res.pt;
+                double val = res.val;
+                return py::make_tuple(pt,val);
+            },
             py::arg("result_id"),
             py::arg("internal_pts")=10)
         
-        .def("get_min", &StaticResult::get_min,
+        .def("get_min", 
+            [](const StaticResult& self, ResultData id, int internal_pts) -> py::tuple {
+                MaxMinResult res = self.get_min(id,internal_pts);
+                Point pt = res.pt;
+                double val = res.val;
+                return py::make_tuple(pt,val);
+            },
             py::arg("result_id"),
             py::arg("internal_pts")=10)
 
         .def("element_mean", &StaticResult::element_mean,
             py::arg("result_id"),
             py::arg("gauss_pts")=10)
+            
+
+        .def("get_value", &StaticResult::get_value,
+            py::arg("result_id"),
+            py::arg("loc"))
 
         .def("compliance", &StaticResult::get_compliance)
 

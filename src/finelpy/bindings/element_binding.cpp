@@ -176,6 +176,10 @@ void bind_element(py::module_& handle){
         //     py::overload_cast<const Vector&>(&IElement::local_to_global),
         //     py::arg("loc"))
 
+        .def("global_to_local", &IElement::global_to_local,
+            py::arg("loc"),
+            py::arg("tol")=1e-7)
+
         .def("dNdxi_shape", &IElement::dNdxi_shape,
             py::arg("loc"))
 

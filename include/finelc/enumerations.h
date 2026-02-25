@@ -64,9 +64,12 @@ namespace finelc{
     };
 
 
-    enum class AreaType{
+    enum class GeometryType{
+        LINE,
         POLYGON,
         RECTANGLE,
+        POLYHEDRON,
+        HEXAHEDRON,
     };
 
 

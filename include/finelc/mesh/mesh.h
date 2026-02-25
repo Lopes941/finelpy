@@ -4,7 +4,6 @@
 
 #include <finelc/geometry/geometry.h>
 #include <finelc/elements/element.h>
-#include <finelc/mesh/element_finder.h>
 
 #include <iostream>
 #include <vector>
@@ -23,7 +22,6 @@ namespace finelc{
 
             VectorNodes nodes; // Vector of shared pointers to the nodes in the mesh.
             VectorElements elements; // Vector of shared pointers to the elements in the mesh.
-            ElementFinder_uptr finder;  // Unique pointer to the element finder.
 
         public:
 
@@ -73,15 +71,6 @@ namespace finelc{
             void set_nodes(const VectorNodes& nds);
 
             /**
-             * @brief Set the element finder for the mesh.
-             * 
-             * The element finder is used to locate elements within the mesh based on given coordinates.
-             * 
-             * @param find Unique pointer to the element finder to set.
-             */
-            void set_finder(ElementFinder_uptr find);
-
-            /**
              * @brief Get a specific element from the mesh.
              * 
              * @param el The index of the element to retrieve.
@@ -110,6 +99,15 @@ namespace finelc{
             int find_node(const Point& coord)const;
 
             /**
+             * @brief Find the element containing a given location.
+             * 
+             * @param loc The location to search for.
+             * 
+             * @return int The index of the element containing the location.
+             */
+            int find_element(const Point& loc) const;
+
+            /**
              * @brief Get all nodes in the mesh.
              * 
              * @return const VectorNodes& Reference to the vector of shared pointers to the nodes in the mesh.
@@ -128,14 +126,7 @@ namespace finelc{
              * 
              * @return VectorNodes Vector of shared pointers to the points representing the geometric centers of the elements.
              */
-            const VectorNodes element_center()const{
-                VectorNodes centers;
-                centers.reserve(elements.size());
-                for(auto& el :elements){
-                    centers.emplace_back(std::make_shared<Point>(el->geometric_center()));
-                }
-                return centers;
-            }
+            const VectorNodes element_center()const;
 
             /**
              * @brief Get the number of nodes in the mesh.
@@ -151,19 +142,13 @@ namespace finelc{
              */
             size_t number_of_elements() const;
 
-            /**
-             * @brief Find the element containing a given location.
-             * 
-             * @param loc The location to search for.
-             * 
-             * @return int The index of the element containing the location.
-             */
-            int find_element(const Vector& loc) const;
+            
     };
 
     /**
      * @brief Type alias for a shared pointer to a Mesh.
      */
     using Mesh_ptr = std::shared_ptr<Mesh>;
+
 
 } // namespace finel

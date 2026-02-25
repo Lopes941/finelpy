@@ -63,11 +63,19 @@ class ElementShapeTrampoline: public IElementShape{
             );
         }
 
-        int number_of_vertices() const override{
+        int number_of_edges() const override{
             PYBIND11_OVERLOAD_PURE(
                 int,
                 IElementShape,
-                number_of_vertices,
+                number_of_edges,
+            );
+        }
+
+        int number_of_faces() const override{
+            PYBIND11_OVERLOAD_PURE(
+                int,
+                IElementShape,
+                number_of_faces,
             );
         }
 
@@ -85,6 +93,15 @@ class ElementShapeTrampoline: public IElementShape{
                 std::vector<IArea_ptr>,
                 IElementShape,
                 surfaces,
+                element_nodes
+            );
+        }
+
+        IGeometry_ptr geometry(const VectorNodes& element_nodes)const override{
+            PYBIND11_OVERLOAD_PURE(
+                IGeometry_ptr,
+                IElementShape,
+                geometry,
                 element_nodes
             );
         }
@@ -186,11 +203,19 @@ class ElementTrampoline: public IElement{
             );
         }
 
-        int number_of_vertices() const override{
+        int number_of_edges() const override{
             PYBIND11_OVERLOAD_PURE(
                 int,
                 IElement,
-                number_of_vertices,
+                number_of_edges,
+            );
+        }
+
+        int number_of_surfaces() const override{
+            PYBIND11_OVERLOAD_PURE(
+                int,
+                IElement,
+                number_of_surfaces,
             );
         }
 
@@ -241,6 +266,14 @@ class ElementTrampoline: public IElement{
                 std::vector<IArea_ptr>,
                 IElement,
                 surfaces,
+            );
+        }
+
+        IGeometry_ptr geometry()const override{
+            PYBIND11_OVERLOAD_PURE(
+                IGeometry_ptr,
+                IElement,
+                geometry,
             );
         }
 

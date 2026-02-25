@@ -220,6 +220,15 @@ namespace finelc{
              */
             Point local_to_global(const Point& loc)const;
 
+            /**
+             * @brief Transform global coordinates to local coordinates.
+             * 
+             * @param loc The global coordinates to be transformed.
+             * 
+             * @return Point The corresponding local coordinates.
+             */
+            Point global_to_local(const Point& loc,double tol=1e-7)const;
+
             /**********************SHAPE METHODS****************************/
 
             /**
@@ -237,11 +246,18 @@ namespace finelc{
             virtual int number_of_nodes() const=0;
 
             /**
-             * @brief Get the number of vertices of the element.
+             * @brief Get the number of edges of the element.
              * 
-             * @return int The number of vertices of the element.
+             * @return int The number of edges of the element.
              */
-            virtual int number_of_vertices() const=0;
+            virtual int number_of_edges() const=0;
+
+            /**
+             * @brief Get the number of surfaces of the element.
+             * 
+             * @return int The number of surfaces of the element.
+             */
+            virtual int number_of_surfaces()const=0;
 
             /**
              * @brief Get the number of dimensions of the element.
@@ -290,6 +306,12 @@ namespace finelc{
              */
             virtual std::vector<IArea_ptr> surfaces()const=0;
 
+            /**
+             * @brief Get geometry of the element.
+             * 
+             * @return IGeometry_ptr The geometry of the element.
+             */
+            virtual IGeometry_ptr geometry()const=0;
 
             /**
              * @brief Get the shape functions at a given location.
@@ -691,15 +713,21 @@ namespace finelc{
             int number_of_nodes() const override{return shape->number_of_nodes();}
 
             /**
-             * @brief Get the number of vertices of the element.
+             * @brief Get the number of edges of the element.
              * 
-             * The number of vertices may be different from the number of nodes.
-             * For example, both QUAD4 and QUAD9 have 4 vertices. But the first 
-             * has 4 nodes and the second, 9 nodes.
+             * The number of edges may be different from the number of nodes.
+             * For example, QUAD9 has 8 edges, but 9 nodes.
              * 
-             * @return int The number of vertices of the element.
+             * @return int The number of edges of the element.
              */
-            int number_of_vertices() const override{return shape->number_of_vertices();}
+            int number_of_edges() const override{return shape->number_of_edges();}
+
+            /**
+             * @brief Get the number of surfaces of the element.
+             * 
+             * @return int The number of surfaces of the element.
+             */
+            int number_of_surfaces()const override{return shape->number_of_faces();}
 
             /**
              * @brief Get the number of dimensions of the element.
@@ -750,6 +778,13 @@ namespace finelc{
              * @return std::vector<IArea_ptr> A vector of shared pointers to the surfaces of the element.
              */
             virtual std::vector<IArea_ptr> surfaces()const override{return shape->surfaces(get_nodes());}
+
+            /**
+             * @brief Get geometry of the element.
+             * 
+             * @return IGeometry_ptr The geometry of the element.
+             */
+            virtual IGeometry_ptr geometry()const override{return shape->geometry(get_nodes());}
 
             /**
              * @brief Get the shape functions at a given location.

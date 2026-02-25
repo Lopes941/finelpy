@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 from ..core.geometry import IGeometry
-from ..core.geometry import Rectangle, Line, AreaType
+from ..core.geometry import Rectangle, Line, GeometryType
+from ..core.geometry import Hexahedron
 
 
 

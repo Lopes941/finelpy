@@ -16,16 +16,17 @@ namespace finelc{
             inline static constexpr ShapeType shape_type = ShapeType::QUAD4;
             inline static constexpr IntegrationGeometry integration_domain = IntegrationGeometry::REGULAR;
             inline static constexpr int number_of_nodes = 4;
-            inline static constexpr int number_of_vertices = 4;
+            inline static constexpr int number_of_edges = 4;
             inline static constexpr int shape_order = 1;
             inline static constexpr int number_of_dimensions = 2;
 
-            inline static constexpr std::array<int[2],number_of_vertices> edge_nodes = {{
+            inline static constexpr std::array<int[2],number_of_edges> edge_nodes = {{
                 {0,1},
                 {1,2},
                 {2,3},
                 {3,0}}
             };
+
             
             static Vector N(const Vector& loc);
             static Matrix dNdxi(const Vector& loc);
@@ -49,11 +50,11 @@ namespace finelc{
             inline static constexpr ShapeType shape_type = ShapeType::QUAD9;
             inline static constexpr IntegrationGeometry integration_domain = IntegrationGeometry::REGULAR;
             inline static constexpr int number_of_nodes = 9;
-            inline static constexpr int number_of_vertices = 8;
+            inline static constexpr int number_of_edges = 8;
             inline static constexpr int shape_order = 2;
             inline static constexpr int number_of_dimensions = 2;
 
-            inline static constexpr std::array<int[2],number_of_vertices> edge_nodes = {{
+            inline static constexpr std::array<int[2],number_of_edges> edge_nodes = {{
                 {0,4},
                 {4,1},
                 {1,5},

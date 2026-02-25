@@ -4,12 +4,9 @@
 #include <finelc/mesh/mesh.h>
 #include <finelc/mesh/meshers.h>
 
-#include <finelc/mesh/element_finder.h>
 #include <finelc/mesh/node_iterators.h>
 
 #include <finelc/elements/element.h>
-
-
 
 #include <exception>
 #include <iostream>
@@ -18,19 +15,18 @@ namespace finelc{
 
 
     MeshBuilderRectangle::MeshBuilderRectangle(
-        std::shared_ptr<IArea> domain_, 
+        IGeometry_ptr domain_, 
         IElement_ptr el_): 
-        MeshBuilder(el_){
+        MeshBuilder(el_,domain_){
 
-        if(!domain_){
+        if(!domain){
             throw std::runtime_error("Null domain passed to MeshBuilderRectangle");
         }
 
-        if(domain_->name() != AreaType::RECTANGLE){
+        if(domain->name() != GeometryType::RECTANGLE){
             throw std::runtime_error("Incorrect geometry type. This mesher only accepts rectangle meshes.");
         }
 
-        domain = domain_;
         Rectangle_ptr rectangle = std::dynamic_pointer_cast<Rectangle>(domain);
 
         if(!rectangle){
@@ -87,21 +83,20 @@ namespace finelc{
         mesh->set_nodes(std::move(nodes));
 
         // Calculating nodes from geometry objects
-        IteratorParameters iterator(num_nodes,0,1);
+        NodeIterator_ptr iterator = std::make_shared<NodeRangeIterator>(num_nodes,0);
         domain->set_iterator(iterator);
 
         std::shared_ptr<std::vector<Line>> lines = rectangle->get_lines();
-
-        iterator = IteratorParameters(ndx,0,1);
+        iterator = std::make_shared<NodeRangeIterator>(ndx,0,1);
         (*lines)[0].set_iterator(iterator);
 
-        iterator = IteratorParameters(ndy,ndx-1,ndx);
+        iterator = std::make_shared<NodeRangeIterator>(ndy,ndx-1,ndx);
         (*lines)[1].set_iterator(iterator);
 
-        iterator = IteratorParameters(ndx,ndx*(ndy-1),1);
+        iterator = std::make_shared<NodeRangeIterator>(ndx,ndx*(ndy-1),1);
         (*lines)[2].set_iterator(iterator);
 
-        iterator = IteratorParameters(ndy,0,ndx);
+        iterator = std::make_shared<NodeRangeIterator>(ndy,0,ndx);
         (*lines)[3].set_iterator(iterator);
 
 
@@ -114,8 +109,6 @@ namespace finelc{
             populate_quad9();
         }
         
-        ElementFinder_uptr finder = std::make_unique<GridRectangleElementFinder>(lx,ly,nx,ny);
-        mesh->set_finder(std::move(finder));
     }
 
     void MeshBuilderRectangle::populate_quad4(){

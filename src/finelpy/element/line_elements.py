@@ -200,8 +200,6 @@ class BeamElement(IncompleteBeamElement):
     def __init__(self, material):
         super().__init__(material, 1)
 
-
-
     def N(self,loc, ue=None):
         x = (loc[0]+1)/2
         he = self.L
@@ -260,3 +258,31 @@ class BeamElement(IncompleteBeamElement):
     
     def get_VY(self,loc, ue):
         return self.material.E*self.Izz * self.dddN(loc) @ ue
+    
+class TrussElement(IncompleteTrussElement):
+
+    def __init__(self, material):
+        super().__init__(material)
+
+    def Ke(self,ue=None):
+
+        he = self.L
+
+        E = self.material.E
+        A = self.material.A
+
+        Ke_loc = (E*A/he)*np.array([[1,0,-1,0],[0,0,0,0],[-1,0,1,0],[0,0,0,0]])
+
+        R = self.R
+
+        self.ke.value = R.T @ Ke_loc @ R
+
+        return self.ke.value
+    
+    def get_strain(self, loc, ue):
+        u_bar = self.R @ ue
+        u_bar = u_bar[[0,2]]
+        return self.B(loc, ue) @ u_bar
+
+    def get_stress(self, loc, ue):
+        return self.material.E * self.get_strain(loc, ue)

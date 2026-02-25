@@ -4,6 +4,7 @@
 
 
 #include <algorithm>
+#include <numeric>
 
 namespace finelc{
 
@@ -38,8 +39,6 @@ namespace finelc{
         nodes = nds;
     }
 
-    void Mesh::set_finder(ElementFinder_uptr find){finder = std::move(find);}
-
     IElement_ptr Mesh::get_element(int el)const{
         return elements.at(el);
     }    
@@ -65,6 +64,15 @@ namespace finelc{
         return elements;
     }
 
+    const VectorNodes Mesh::element_center()const{
+        VectorNodes centers;
+        centers.reserve(elements.size());
+        for(auto& el :elements){
+            centers.emplace_back(std::make_shared<Point>(el->geometric_center()));
+        }
+        return centers;
+    }
+
     size_t Mesh::number_of_nodes() const{
         return nodes.size();
     }
@@ -73,8 +81,28 @@ namespace finelc{
         return elements.size();
     }
 
-    int Mesh::find_element(const Vector& loc) const{
-        return finder->find_element(loc);
+    int Mesh::find_element(const Point& loc) const{
+
+        VectorNodes element_centers = element_center();
+        std::vector<int> inds(number_of_elements());
+        std::iota(inds.begin(),inds.end(),0);
+        std::sort(inds.begin(), inds.end(),
+              [&element_centers, &loc](int i1, int i2) {return dist(*element_centers[i1],loc) < dist(*element_centers[i2],loc);});
+
+        int index = -1;
+        for(auto& ind: inds){
+            VectorNodes nodes = elements[ind]->get_nodes();
+
+            IGeometry_ptr geo = elements[ind]->geometry();
+            if(geo->is_inside(loc)){
+                index = ind;
+                break;
+            }
+        }
+        if(index==-1){
+            throw std::runtime_error("No element contains point");
+        }
+        return index;
     }
 
 

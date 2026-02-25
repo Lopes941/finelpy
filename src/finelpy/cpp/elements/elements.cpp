@@ -8,9 +8,11 @@
 #include <finelc/element_geometry/element_geometry.h>
 #include <finelc/element_geometry/quad.h>
 #include <finelc/element_geometry/tri.h>
+#include <finelc/element_geometry/hex.h>
 
 #include <finelc/element_physics/element_physics.h>
 #include <finelc/element_physics/plane.h>
+#include <finelc/element_physics/solid.h>
 
 #include <finelc/material/constitutive.h>
 #include <finelc/material/elastic.h>
@@ -121,6 +123,36 @@ namespace finelc{
             gloc.z += element_nodes[i]->z * Nmat(i);
         }
         return gloc;
+    }
+
+    Point IElement::global_to_local(const Point& loc, double tol)const{
+             
+        Point x0(0,0,0);
+
+        Vector F(number_of_dimensions());
+
+        int ite = 0;
+        while(true){
+
+            Vector x0vec = x0.as_vector();
+            Matrix Jac = J(x0vec);
+            Vector F_full = local_to_global(x0).as_vector()-loc.as_vector();
+            
+
+            for(int i=0;i<number_of_dimensions();i++){
+                F(i) = F_full(i);
+            }
+
+            Solver sol(Jac);
+
+            Point dx = -sol.solve(F);
+            x0 += dx;
+            if(dist(dx,Point(0,0,0)) < tol){
+                break;
+            }
+        }
+        
+        return x0;
     }
 
     void IElement::set_number_integration_points(int number_points){
@@ -295,6 +327,10 @@ namespace finelc{
             case ShapeType::TRI3:
                 return std::make_shared<ElementShapeAdapter<Tri3>>();
                 break;
+
+            case ShapeType::HEX8:
+                return std::make_shared<ElementShapeAdapter<Hex8>>();
+                break;
         
         }
 
@@ -307,6 +343,9 @@ namespace finelc{
 
             case ModelType::PLANE_STRUCTURAL:
                 return std::make_shared<ElementPhysicsAdapter<PlaneStructural>>();
+                break;
+            case ModelType::SOLID_STRUCTURAL:
+                return std::make_shared<ElementPhysicsAdapter<SolidStructural>>();
                 break;
         
         }
@@ -324,6 +363,10 @@ namespace finelc{
 
             case ConstitutiveType::PLANE_STRESS:
                 return std::make_shared<ConstitutiveModelAdapter<PlaneStress>>(mat);
+                break;
+
+            case ConstitutiveType::SOLID_LINEAR_ELASTIC:
+                return std::make_shared<ConstitutiveModelAdapter<LinearElastic>>(mat);
                 break;
 
         }

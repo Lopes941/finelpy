@@ -1,3 +1,3 @@
-from .geometry import  Rectangle, Line, AreaType
+from .geometry import  Rectangle, Line, GeometryType, Hexahedron
 
-__all__ = ["Rectangle", "Line","AreaType"]
+__all__ = ["Rectangle", "Line","GeometryType","Hexahedron"]

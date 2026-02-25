@@ -41,15 +41,21 @@ namespace finelc{
             virtual int number_of_nodes()const=0;
 
             /**
-             * @brief Get the number of vertices of the element.
+             * @brief Get the number of edges of the element.
              * 
              * The number of vertices may be different from the number of nodes.
-             * For example, both QUAD4 and QUAD9 have 4 vertices. But the first 
-             * has 4 nodes and the second, 9 nodes.
+             * For example, QUAD9 has 8 edges, but 9 nodes.
              * 
-             * @return int The number of vertices of the element.
+             * @return int The number of edges of the element.
              */
-            virtual int number_of_vertices()const=0;
+            virtual int number_of_edges()const=0;
+
+            /**
+             * @brief Get the number of faces of the element.
+             * 
+             * @return int The number of faces of the element.
+             */
+            virtual int number_of_faces()const=0;
 
             /**
              * @brief Get the number of dimensions of the element.
@@ -111,6 +117,15 @@ namespace finelc{
              * @return std::vector<IArea_ptr> A vector of shared pointers to the surfaces of the element.
              */
             virtual std::vector<IArea_ptr> surfaces(const VectorNodes& element_nodes)const=0;
+
+            /**
+             * @brief Get geometry of the element.
+             * 
+             * @param element_nodes Vector of shared pointers to the nodes of the element.
+             * 
+             * @return IGeometry_ptr The geometry of the element.
+             */
+            virtual IGeometry_ptr geometry(const VectorNodes& element_nodes)const=0;
 
             /**
              * @brief Get the shape functions at a given location.
@@ -195,16 +210,72 @@ namespace finelc{
             }
 
             /**
-             * @brief Get the number of vertices of the element.
+             * @brief Get the number of edges of the element.
              * 
-             * The number of vertices may be different from the number of nodes.
-             * For example, both QUAD4 and QUAD9 have 4 vertices. But the first 
-             * has 4 nodes and the second, 9 nodes.
+             * The number of edges may be different from the number of nodes.
+             * For example, QUAD9 has 8 edges, but 9 nodes.
              * 
-             * @return int The number of vertices of the element.
+             * @return int The number of edges of the element.
              */
-            int number_of_vertices()const override{
-                return ElShape::number_of_vertices;
+            int number_of_edges()const override{
+                if constexpr(ElShape::number_of_dimensions>1){
+                    return ElShape::number_of_edges;
+                }else{
+                    return 1;
+                }
+            }
+
+            /**
+             * @brief Get the number of faces of the element.
+             * 
+             * @return int The number of faces of the element.
+             */
+            int number_of_faces()const override{
+                if constexpr(ElShape::number_of_dimensions>2){
+                    return ElShape::number_of_faces;
+                }else{
+                    return 1;
+                }
+            }
+
+            /**
+             * @brief Get geometry of the element.
+             * 
+             * @return IGeometry_ptr The geometry of the element.
+             */
+            IGeometry_ptr geometry(const VectorNodes& element_nodes)const override{
+                IGeometry_ptr geo;
+                switch (number_of_dimensions())
+                {
+                case 1:
+                    geo = std::make_shared<Line>(element_nodes[0],element_nodes[1]);
+                    break;
+
+                case 2:
+                    geo = std::make_shared<IArea>(element_nodes);
+                    break;
+
+                case 3:
+                    {
+                        std::vector<Point> vertices;
+                        vertices.reserve(element_nodes.size());
+                        for(auto& pt : element_nodes){
+                            vertices.emplace_back(*pt);
+                        }
+                        std::vector<IArea> faces;
+                        std::vector<IArea_ptr> surfs = surfaces(element_nodes);
+                        faces.reserve(surfs.size());
+                        for(auto& surf : surfs){
+                            faces.emplace_back(*surf);
+                        }
+                        geo = std::make_shared<IVolume>(vertices,faces);
+                    }
+                    break;
+                
+                default:
+                    break;
+                }
+                return geo;
             }
 
              /**
@@ -270,7 +341,7 @@ namespace finelc{
             std::vector<Line_ptr> edges(const VectorNodes& element_nodes) const override{
                 if constexpr(ElShape::number_of_dimensions>1){
                     std::vector<Line_ptr> lines;
-                    lines.reserve(number_of_vertices());
+                    lines.reserve(number_of_edges());
                     for(auto& nodes: ElShape::edge_nodes){
                         Point p1 = *element_nodes[nodes[0]];
                         Point p2 = *element_nodes[nodes[1]];
@@ -293,21 +364,22 @@ namespace finelc{
             std::vector<IArea_ptr> surfaces(const VectorNodes& element_nodes)const override{
                 if constexpr(ElShape::number_of_dimensions>2){
                     std::vector<IArea_ptr> surfaces;
-                    surfaces.reserve(number_of_vertices());
+                    surfaces.reserve(number_of_faces());
                     for(auto& nodes: ElShape::surface_nodes){
                         std::vector<Point> ps;
-                        ps.reserve(nodes.size());
-                        for(auto& node : *nodes){
-                            ps.emplace_back(*element_nodes[node]);
+                        int num_nodes = nodes.size();
+                        ps.reserve(num_nodes);
+                        for(int i=0; i<num_nodes; i++){
+                            ps.emplace_back(*element_nodes[nodes[i]]);
                         }
-                        surfaces.emplace_back(std::make_shared<IArea_ptr>(ps));
+                        surfaces.emplace_back(std::make_shared<IArea>(ps));
                     }
                     return surfaces;
                 }else{
                     std::vector<IArea_ptr> surfaces;
                     return surfaces;
                 }
-            };
+            }
 
             /**
              * @brief Get the shape functions at a given location.

@@ -4,7 +4,6 @@
 #include <finelc/mesh/mesh.h>
 #include <finelc/mesh/meshers.h>
 
-#include <finelc/mesh/element_finder.h>
 #include <finelc/mesh/node_iterators.h>
 
 #include <finelc/elements/element.h>
@@ -18,15 +17,18 @@ namespace finelc{
 
 
     MeshBuilderLine::MeshBuilderLine(
-        std::shared_ptr<Line> domain_, 
+        IGeometry_ptr domain_, 
         IElement_ptr el_): 
-        MeshBuilder(el_){
+        MeshBuilder(el_,domain_){
 
-        if(!domain_){
+        if(!domain){
             throw std::runtime_error("Null domain passed to MeshBuilderLine");
         }
 
-        domain = domain_;
+        if(domain->name() != GeometryType::LINE){
+            throw std::runtime_error("Incorrect geometry type. This mesher only accepts line meshes.");
+        }
+
         Line_ptr line = std::dynamic_pointer_cast<Line>(domain);
 
 
@@ -62,7 +64,7 @@ namespace finelc{
         mesh->set_nodes(std::move(nodes));
 
         // Calculating nodes from geometry objects
-        IteratorParameters iterator(num_nodes,0,1);
+        NodeIterator_ptr iterator = std::make_shared<NodeRangeIterator>(num_nodes,0);
         domain->set_iterator(iterator);
 
         // Calculating elements
@@ -84,8 +86,6 @@ namespace finelc{
 
         mesh->set_elements(elements);
         
-        ElementFinder_uptr finder = std::make_unique<LineElementFinder>(l);
-        mesh->set_finder(std::move(finder));
 
 
     }
@@ -126,7 +126,7 @@ namespace finelc{
         IElement_ptr el_,
         VectorNodes nodes_,
         std::vector<std::vector<int>> inci_): 
-        MeshBuilder(el_), inci(inci_), nodes(nodes_){ }
+        MeshBuilder(el_,nullptr), inci(inci_), nodes(nodes_){ }
 
 
     Mesh_ptr MeshBuilderFrame::build(){
