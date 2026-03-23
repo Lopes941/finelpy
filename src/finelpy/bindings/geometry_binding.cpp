@@ -107,7 +107,18 @@ void bind_geometry(py::module_& handle){
     }
 
     {py::class_<Rectangle,IArea,std::shared_ptr<Rectangle>>
-        (handle,"Rectangle")
+        (handle,
+        "Rectangle",
+        R"pbdoc(
+        Create a rectangle with given dimensions and origin.
+
+        Parameters
+        ----------
+        dimensions : list of float, length 2 or 3
+            Dimensions lx, ly and t (thickness).
+        origin: list of float, length 2 or 3, optional
+            Optional origin for first point.
+        )pbdoc")
 
         .def(py::init<Point, 
             Point>(),

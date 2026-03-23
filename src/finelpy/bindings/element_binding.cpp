@@ -2,6 +2,7 @@
 #include <finelc/enumerations.h>
 
 #include <finelc/elements/element.h>
+#include <finelc/elements/element_matrix.h>
 #include <finelc/elements/integration.h>
 #include <finelc/elements/shape_func.h>
 
@@ -120,11 +121,19 @@ void bind_element(py::module_& handle){
     py::class_<IElementPhysics, std::shared_ptr<IElementPhysics>>
         (handle, "IElementPhysics");
 
-    
+    // {
+    // py::class_<ElementalMatrices,std::shared_ptr<ElementalMatrices>>
+    // (handle, "ElementalMatrices")
+    //     .def(py::init<>())
+    //     .def("get_Ke",
+    //     [](ElementalMatrices& self, ))
+    //     ;
+    // }
+
 
     {
     py::class_<IElement, ElementTrampoline, std::shared_ptr<IElement>>
-    (handle, "Element")
+    (handle, "Element", py::dynamic_attr())
 
         .def(py::init<>())
         .def_property_readonly("shape", &IElement::get_shape)
