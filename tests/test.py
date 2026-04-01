@@ -7,6 +7,18 @@ from time import perf_counter as time
 
 from matplotlib import pyplot as plt
 
+class MyEl(fp.element.pyElement):
+
+    def __init__(self, material):
+        super().__init__(material)
+
+    def get_shape(self) -> ShapeType:
+        return fp.element.ShapeType.QUAD4
+    
+    def dofs(self):
+        return [fp.analysis.DOFType.UX,fp.analysis.DOFType.UY]
+
+    
 
 # Creating Geometry
 Lx = 80
@@ -28,12 +40,13 @@ properties = {
 
 steel = fp.material.create_material("Steel").add_property(properties)
 
-el = fp.element.create_element(
-        fp.element.ShapeType.TRI3, 
-        fp.element.ModelType.PLANE_STRUCTURAL,
-        fp.element.ConstitutiveType.PLANE_STRESS, 
-        steel)
+# el = fp.element.create_element(
+#         fp.element.ShapeType.TRI3, 
+#         fp.element.ModelType.PLANE_STRUCTURAL,
+#         fp.element.ConstitutiveType.PLANE_STRESS, 
+#         steel)
 
+el = MyEl(steel)
 
 mesh_gen = fp.mesh.RectangularMesh(Rec, el)
 mesh_gen.set_grid(nx,ny)

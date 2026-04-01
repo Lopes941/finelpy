@@ -2,8 +2,8 @@
 
 from ..core.element import *
 from ..core.element import get_integration_points, eval_lagrange, eval_lagrange_derivative, create_element, move_element_to_Cpp
-from ..core.element import ShapeType, ElementShape, ConstitutiveType, IntegrationGeometry, Element
-from ..core.material import Material
+from ..core.element import ShapeType, ElementShape, IntegrationGeometry, Element
+from ..core.material import Material, ConstitutiveType
 
 import numpy as np
 
@@ -32,12 +32,32 @@ class pyShape(ElementShape):
         except:
             shape_error("shape()")
 
+    def integration_domain(self):
+        try:
+            if(self.shape() == ShapeType.QUAD4):
+                return IntegrationGeometry.REGULAR
+            elif(self.shape() == ShapeType.TRI3):
+                return IntegrationGeometry.TRIANGULAR
+            else:
+                return IntegrationGeometry.REGULAR
+        except:
+            return IntegrationGeometry.REGULAR
+    
     def number_of_dimensions(self):
         try:
-            if(self.shape() in [ShapeType.QUAD4, ShapeType.TRI3]):
-                return 2
-            else:
-                raise
+            match self.shape():
+                
+                case ShapeType.LINE:
+                    return 1
+                case ShapeType.QUAD4:
+                    return 2
+                case ShapeType.TRI3:
+                    return 2
+                case ShapeType.HEX8:
+                    return 3
+                
+                case _:
+                    raise
         except:
             shape_error("number_of_dimensions()")
     
@@ -69,18 +89,13 @@ class pyShape(ElementShape):
             return self.number_of_nodes()
         except:
             shape_error("number_of_vertices()")
-            
+
+    def J(self, element_nodes, loc):
+        return self.dNdxi(loc) @ element_nodes[:,:self.number_of_dimensions()]
     
-    def integration_domain(self):
-        try:
-            if(self.shape() == ShapeType.QUAD4):
-                return IntegrationGeometry.REGULAR
-            elif(self.shape() == ShapeType.TRI3):
-                return IntegrationGeometry.TRIANGULAR
-            else:
-                return IntegrationGeometry.REGULAR
-        except:
-            return IntegrationGeometry.REGULAR
+    def detJ(self, element_nodes, loc):
+        return np.linalg.det(self.J(element_nodes, loc))  
+    
     
     def N(self, loc: np.ndarray):
         shape_error("N(np.ndarray)")
@@ -88,11 +103,9 @@ class pyShape(ElementShape):
     def dNdxi(self, loc: np.ndarray):
         shape_error("dNdxi(np.ndarray)")
     
-    def J(self, element_nodes, loc):
-        return self.dNdxi(loc) @ element_nodes[:,:self.number_of_dimensions()]
+    def dNdx(self, element_nodes, loc):
+        return np.linalg.solve(self.J(element_nodes,loc), self.dNdxi(loc))
     
-    def detJ(self, element_nodes, loc):
-        return np.linalg.det(self.J(element_nodes, loc))
     
 class pyMatrix:
     def __init__(self,value):

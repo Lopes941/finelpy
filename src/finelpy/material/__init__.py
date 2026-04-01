@@ -1,3 +1,10 @@
-from .material import MaterialCatalogue, MaterialProperties, create_material
+from .material import MaterialCatalogue, MaterialProperties, ConstitutiveType 
+from .material import create_material, Material, pyConstitutiveModel, ConstitutiveModel
 
-__all__ = ["MaterialCatalogue", "MaterialProperties","create_material"]
+__all__ = ["MaterialCatalogue", 
+           "MaterialProperties", 
+           "ConstitutiveType",
+           "ConstitutiveModel",
+           "pyConstitutiveModel",
+           "create_material",
+           "Material"]

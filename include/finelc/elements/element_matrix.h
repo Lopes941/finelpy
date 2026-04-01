@@ -8,7 +8,7 @@
 #include <optional>
 #include <functional>
 
-
+#include<iostream>
 namespace finelc{
     
     /**
@@ -118,9 +118,8 @@ namespace finelc{
                             double wi = pair.weight;
 
                             Matrix Nmat(Nfunc(pi,ue));
-                            *Me += Nmat * Nmat.transpose() * detJfunc(pi) * wi;
+                            *Me += Nmat.transpose() * Nmat  * detJfunc(pi) * wi;
                         }
-
                         *Me *= rhofunc();
                     }
                     return *Me;
