@@ -1,10 +1,15 @@
-finelpy.solver package
-======================
+Solver Module
+========================
 
-Module contents
+
+Enums
 ---------------
 
-.. automodule:: finelpy.solver
+.. autoclass:: finelpy.solver.SolverType
    :members:
-   :show-inheritance:
-   :undoc-members:
+
+Solver Objects
+---------------
+
+.. autoclass:: finelpy.solver.StaticSolver
+   :members:

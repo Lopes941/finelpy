@@ -1,21 +1,30 @@
-finelpy.material package
+Material Module
 ========================
 
-Submodules
-----------
-
-finelpy.material.material module
---------------------------------
-
-.. automodule:: finelpy.material.material
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
+Enums
 ---------------
 
-.. automodule:: finelpy.material
+.. autoclass:: finelpy.material.MaterialProperties
    :members:
-   :show-inheritance:
-   :undoc-members:
+
+.. autoclass:: finelpy.material.ConstitutiveType
+   :members:
+
+Functions
+---------------
+
+.. autofunction:: finelpy.material.create_material
+
+
+
+Material Object
+--------------------------------
+
+.. autoclass:: finelpy.material.Material
+   :members:
+
+Constitutive Interface
+--------------------------------
+
+.. autoclass:: finelpy.material.ConstitutiveModel
+   :members:

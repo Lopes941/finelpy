@@ -6,7 +6,11 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'finelpy'
+def setup(app):
+    app.add_css_file("css/customWidth.css")
+
+
+project = 'FinelPy'
 copyright = '2026, Heitor Lopes'
 author = 'Heitor Lopes'
 release = '0.1'
@@ -18,16 +22,17 @@ import os
 import sys
 sys.path.insert(0,os.path.abspath("../../src"))
 
-import finelpy
-print("Loaded:", finelpy)
-
-project = "finelpy"
+project = "FinelPy"
 
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
+    "sphinx_code_tabs",
     "breathe",
 ]
+
+autodoc_member_order = 'bysource'
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -36,9 +41,28 @@ breathe_projects = {
     "finelpy": "../build/doxygen/xml"
 }
 
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
+
+html_theme_options = {
+    'logo_only': False,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'includehidden': True,
+    'navigation_depth': 4,
+    'titles_only': False,
+
+}
+
+html_context = {
+  'display_github': True,
+  'github_user': 'Lopes941',
+  'github_repo': 'finelpy',
+  'github_version': 'main',
+  'conf_py_path': '/docs/source',
+}
+
 html_static_path = ['_static']
+

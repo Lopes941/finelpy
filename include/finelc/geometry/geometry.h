@@ -167,12 +167,11 @@ namespace finelc{
              * @return const std::string& Name of the geometry.
              */
             virtual const GeometryType name()const=0;
-            
+
 
             void set_iterator(NodeIterator_ptr& ite){
                 iterator = std::move(ite);
             }
-
 
             virtual bool is_inside(const Point& p)const=0;
 

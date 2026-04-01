@@ -296,7 +296,7 @@ namespace finelc{
             material = build_constitutive(const_type,mat);
         }else{
             material = std::get<IConstitutiveModel_ptr>(const_input);
-            const_type = material->contitutive_model();
+            const_type = material->constitutive_model();
         }
 
         check_compatibility(shape_type,physics_type,const_type);

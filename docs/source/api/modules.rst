@@ -1,7 +1,13 @@
-finelpy
+Modules
 =======
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
-   finelpy
+   finelpy.geometry
+   finelpy.material
+   finelpy.element
+   finelpy.mesh
+   finelpy.analysis
+   finelpy.solver
+   finelpy.results

@@ -20,9 +20,7 @@ namespace finelc{
      */
     class IConstitutiveModel{
 
-            protected:
-                Material_ptr material; // Pointer to the material associated with the constitutive model
-
+        
             public:
 
                 virtual ~IConstitutiveModel() = default;
@@ -34,9 +32,7 @@ namespace finelc{
                  * 
                  * @return double The value of the requested material property.
                  */
-                double get_property(const MaterialProperties& prop){
-                    return material->get_property(prop);
-                }
+                virtual double get_property(const MaterialProperties& prop)=0;
 
                 /**
                  * @brief Check if the material is linear.
@@ -50,7 +46,7 @@ namespace finelc{
                  * 
                  * @return ConstitutiveType The constitutive model type.
                  */
-                virtual ConstitutiveType contitutive_model()const=0;
+                virtual ConstitutiveType constitutive_model()const=0;
 
                 /**
                  * @brief Get the constitutive matrix at a given location.
@@ -79,6 +75,9 @@ namespace finelc{
         template<class ConstModel>
         class ConstitutiveModelAdapter: public IConstitutiveModel{
 
+            private:
+                Material_ptr material; // Pointer to the material associated with the constitutive model
+
             public:
 
                 /** 
@@ -86,11 +85,21 @@ namespace finelc{
                  * 
                  * @param material_ Shared pointer to the material associated with the constitutive model.
                 */
-                ConstitutiveModelAdapter(Material_ptr material_){
-                    material = material_;
-                }
+                ConstitutiveModelAdapter(Material_ptr material_):
+                    material(material_) {}
                 
                 ~ConstitutiveModelAdapter()override = default;
+
+                /**
+                 * @brief Get the value of a material property.
+                 * 
+                 * @param prop The material property to retrieve.
+                 * 
+                 * @return double The value of the requested material property.
+                 */
+                double get_property(const MaterialProperties& prop) override{
+                    return material->get_property(prop);
+                }
 
 
                 /**
@@ -98,7 +107,7 @@ namespace finelc{
                  * 
                  * @return ConstitutiveType The constitutive model type.
                  */
-                ConstitutiveType contitutive_model()const override{
+                ConstitutiveType constitutive_model()const override{
                     return ConstModel::model_name;
                 }
 

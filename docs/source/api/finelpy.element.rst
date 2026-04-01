@@ -1,29 +1,41 @@
-finelpy.element package
-=======================
+Element Module
+========================
 
-Submodules
-----------
 
-finelpy.element.element module
-------------------------------
+Parent Classes
+--------------------------------
 
-.. automodule:: finelpy.element.element
+.. autoclass:: finelpy.element.ElementShape
    :members:
+
+.. autoclass:: finelpy.element.pyElement
    :show-inheritance:
-   :undoc-members:
-
-finelpy.element.line\_elements module
--------------------------------------
-
-.. automodule:: finelpy.element.line_elements
    :members:
-   :show-inheritance:
-   :undoc-members:
 
-Module contents
+Enums
 ---------------
 
-.. automodule:: finelpy.element
+.. autoclass:: finelpy.element.ShapeType
    :members:
-   :show-inheritance:
-   :undoc-members:
+
+.. autoclass:: finelpy.element.ModelType
+   :members:
+
+.. autoclass:: finelpy.element.IntegrationGeometry
+   :members:
+
+Functions
+---------------
+
+.. autofunction:: finelpy.element.create_element
+.. autofunction:: finelpy.element.get_integration_points
+.. autofunction:: finelpy.element.eval_lagrange
+.. autofunction:: finelpy.element.eval_lagrange_derivative
+
+
+Element Object
+--------------------------------
+
+.. autoclass:: finelpy.element.Element
+   :members:
+

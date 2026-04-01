@@ -2,8 +2,8 @@
 
 from ..core.element import *
 from ..core.element import get_integration_points, eval_lagrange, eval_lagrange_derivative, create_element, move_element_to_Cpp
-from ..core.element import ShapeType, ElementShape, ConstitutiveType, IntegrationGeometry, Element
-from ..core.material import Material
+from ..core.element import ShapeType, ElementShape, IntegrationGeometry, Element
+from ..core.material import Material, ConstitutiveType
 
 import numpy as np
 

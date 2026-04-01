@@ -80,7 +80,7 @@ namespace finelc{
 
             double get_value(ResultData id, const Point& loc)const;
 
-            Vector element_mean(ResultData id, int gauss_pts=10)const{
+            Vector element_mean(ResultData id, int gauss_pts=2)const{
                 return compute_mean(U,analysis,id,gauss_pts);
             }
 

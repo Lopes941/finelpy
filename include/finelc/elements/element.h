@@ -830,7 +830,7 @@ namespace finelc{
              * 
              * @return ConstitutiveType The constitutive model type of the element.
              */
-            ConstitutiveType get_constitutive_model() const override{ return material->contitutive_model();}
+            ConstitutiveType get_constitutive_model() const override{ return material->constitutive_model();}
 
             /**
              * @brief Check if the material is linear.

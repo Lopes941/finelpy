@@ -6,7 +6,7 @@ import matplotlib.colors as colors
 
 from finelpy.geometry.geometry import IGeometry
 
-from ..core.mesh import RectangularMesh, LineMesh, FrameMesh, HexMesh
+from ..core.mesh import RectangularMesh, LineMesh, FrameMesh, HexMesh, MeshBuilder
 from ..core.mesh import Mesh
 
 from ..utils import add_method

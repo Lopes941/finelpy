@@ -1,21 +1,21 @@
-finelpy.results package
-=======================
+Result Module
+========================
 
-Submodules
-----------
 
-finelpy.results.results module
-------------------------------
-
-.. automodule:: finelpy.results.results
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
+Enums
 ---------------
 
-.. automodule:: finelpy.results
+.. autoclass:: finelpy.results.ResultData
    :members:
-   :show-inheritance:
-   :undoc-members:
+
+Result Objects
+---------------
+
+.. autoclass:: finelpy.results.StaticResult
+   :members:
+
+.. Analysis Builder
+.. ---------------
+
+.. .. autoclass:: finelpy.analysis.AnalysisBuilder
+..    :members:

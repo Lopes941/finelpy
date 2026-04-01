@@ -1,14 +1,15 @@
 
-from .element import ElementShape, ShapeType, ModelType, ConstitutiveType, IntegrationGeometry
+from .element import ShapeType, ModelType, IntegrationGeometry
+from .element import ElementShape, Element
 from .element import get_integration_points, eval_lagrange, eval_lagrange_derivative, create_element
 
 from .element import pyElement
 from .line_elements import LineElement, BarElement, BeamElement, TrussElement, IncompleteBarElement, IncompleteBeamElement, IncompleteTrussElement
 
-__all__ = ["ElementShape", 
+__all__ = ["ElementShape",
+           "Element" 
            "ShapeType",
            "ModelType", 
-           "ConstitutiveType",
            "IntegrationGeometry",
            "get_integration_points",
            "eval_lagrange",

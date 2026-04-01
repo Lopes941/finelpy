@@ -1,21 +1,35 @@
-finelpy.geometry package
+Geometry Module
 ========================
 
-Submodules
-----------
 
-finelpy.geometry.geometry module
+Parent Classes
 --------------------------------
 
-.. automodule:: finelpy.geometry.geometry
+.. autoclass:: finelpy.geometry.IGeometry
    :members:
-   :show-inheritance:
-   :undoc-members:
 
-Module contents
+
+
+
+Enums
 ---------------
 
-.. automodule:: finelpy.geometry
+.. autoclass:: finelpy.geometry.GeometryType
    :members:
+
+Geometry Objects
+--------------------------------
+
+.. autoclass:: finelpy.geometry.Line
    :show-inheritance:
-   :undoc-members:
+   :members:
+
+
+.. autoclass:: finelpy.geometry.Rectangle
+   :show-inheritance:
+   :members:
+   
+.. autoclass:: finelpy.geometry.Hexahedron
+   :show-inheritance:
+   :members:
+   

@@ -1,3 +1,3 @@
-from .mesh import RectangularMesh, LineMesh, FrameMesh, HexMesh
+from .mesh import RectangularMesh, LineMesh, FrameMesh, HexMesh, Mesh, MeshBuilder
 
-__all__ = ["RectangularMesh", "LineMesh", "FrameMesh","HexMesh"]
+__all__ = ["RectangularMesh", "LineMesh", "FrameMesh","HexMesh", "Mesh", "MeshBuilder"]

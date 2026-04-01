@@ -1,21 +1,27 @@
-finelpy.analysis package
+Analysis Module
 ========================
 
-Submodules
-----------
 
-finelpy.analysis.analysis module
---------------------------------
-
-.. automodule:: finelpy.analysis.analysis
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
+Enums
 ---------------
 
-.. automodule:: finelpy.analysis
+.. autoclass:: finelpy.analysis.DOFType
    :members:
-   :show-inheritance:
-   :undoc-members:
+
+.. autoclass:: finelpy.analysis.InterpolationScheme
+   :members:
+
+.. autoclass:: finelpy.analysis.InterpolationParameters
+   :members:
+
+Analysis Object
+---------------
+
+.. autoclass:: finelpy.analysis.Analysis
+   :members:
+
+Analysis Builder
+---------------
+
+.. autoclass:: finelpy.analysis.AnalysisBuilder
+   :members:
