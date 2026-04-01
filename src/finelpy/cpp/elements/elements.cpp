@@ -292,11 +292,11 @@ namespace finelc{
         ConstitutiveType const_type;
         if(std::holds_alternative<ConstitutiveType>(const_input)){
             const_type = std::get<ConstitutiveType>(const_input);
-            if(!mat) throw std::runtime_error("Must provide a built contitutive model or a material.");
+            if(!mat) throw std::runtime_error("Must provide a built constitutive model or a material.");
             material = build_constitutive(const_type,mat);
         }else{
             material = std::get<IConstitutiveModel_ptr>(const_input);
-            const_type = material->contitutive_model();
+            const_type = material->constitutive_model();
         }
 
         check_compatibility(shape_type,physics_type,const_type);
