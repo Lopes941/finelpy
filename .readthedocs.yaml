@@ -6,6 +6,7 @@ build:
     python: "3.11"
   jobs:
     pre_build:
+      - mkdir -p docs/build/doxygen
       - doxygen
 
 sphinx:
