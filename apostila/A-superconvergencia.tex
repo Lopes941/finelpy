@@ -1,0 +1,130 @@
+%LTeX: language=pt-br
+% !TeX root = Apostila_IM381.tex
+
+\subsection{Superconvergência}
+\label{app:superconvergencia}
+
+    Para o problema de barra, o deslocamento nodal será igual ao deslocamento analítico. Neste apêndice, vamos provar isso.
+
+    Sem perda de generalidade, considere a equação diferencial da barra na forma:
+
+    \begin{equation}
+        \begin{array}{l}
+            u''(x) + p(x) = 0\\
+            u(0) = u_0\\
+            u'(1) = F
+        \end{array}
+        \label{eq:fraca_apendice}
+    \end{equation}
+
+    \noindent no qual esta equação assume $EA=1$ e $L=1$. Estas hipóteses simplificam a dedução, sem alterar a conclusão.
+
+    Antes de prosseguir, precisamos definir o conceito de função de Green. A função de Green ($g(x)$) correspondente à equação acima, é a função que resolve o problema com uma única força concentrada em um ponto $y$, ou seja, a força é representada por uma função delta de Dirac $\delta_y = \left\langle x-y\right\rangle^{-1}$:
+
+
+    \begin{equation}
+        \begin{array}{l}
+            g''(x) + \delta_y = 0\\
+            g(0) = 0\\
+            g'(1) = 0
+        \end{array}
+    \end{equation}
+
+    Este problema pode ser resolvido utilizando as funções de singularidade da Seção \ref{sec:singularidade}. A solução então fica:
+
+    \begin{equation*}
+        g(x) = -\left\langle x-y\right\rangle^1 + C_1x + C_2
+    \end{equation*}
+
+    Aplicando as condições de contorno:
+
+    \begin{equation*}
+        g(x) = x-\left\langle x-y\right\rangle^1
+    \end{equation*}
+
+    A função de Green obtida é a expressão de duas retas, que ligam, respectivamente, pontos com coordenadas $x=0$, $x=y$ e $x=1$.
+
+    Considere agora a forma fraca do problema com a função de Green:
+
+    \begin{equation*}
+        a(w,g) = (w,\delta_y)
+    \end{equation*}
+
+    \begin{equation*}
+        \int_{0}^{1} w'(x)g'(x) dx + \int_{0}^{1} w(x)\left\langle x-y\right\rangle^{-1} dx = 0 \quad, \forall w(x) \in W
+    \end{equation*}
+
+    \begin{equation*}
+        \int_{0}^{1} w'(x)g'(x) dx + w(y) = 0 \quad, \forall w(x) \in W
+        \label{eq:green}
+    \end{equation*}
+
+    Para provar a superconvergência, precisaremos de duas relações. A primeira é:
+
+    \begin{equation}
+        a(w^h, u-u^h)=0
+        \label{eq:lem1}
+    \end{equation}
+
+    Para provar essa relação, partimos da forma fraca da aproximação de Eq. \eqref{eq:fraca_apendice} e da sua forma fraca com os mesmos $w^h(x)$:
+
+    \begin{equation*}
+        a(w^h, u) = (w^h, p) + w^h(L)F
+    \end{equation*}
+
+    \begin{equation*}
+        a(w^h, u^h) = (w^h, p) + w^h(L)F
+    \end{equation*}
+
+    Subtraindo as duas expressões 
+
+    \begin{equation*}
+        a(w^h, u) - a(w^h, u^h) = 0
+    \end{equation*}
+
+    \begin{equation*}
+        a(w^h, u-u^h) = 0
+    \end{equation*}
+
+    A segunda relação é:
+
+    \begin{equation}
+        u(y) - u^h(y) = a(u-u^h, g)
+        \label{eq:lem2}
+    \end{equation}
+
+    Para provar, partimos da definição do delta de Dirac:
+
+    \begin{equation}
+        (u,\delta_y) = \int_{0}^{1} u(x) \delta_y = u(y)
+    \end{equation}
+
+    Portanto,
+
+    \begin{equation}
+        (u-u^h,\delta_y) = u(y) - u^h(y)
+    \end{equation}
+
+    Da Eq. \eqref{eq:green}:
+
+    \begin{equation}
+        (u-u^h,\delta_y) = a(u-u^h,g)
+    \end{equation}
+
+    Portanto,
+
+    \begin{equation}
+        u(y) - u^h(y) = a(u-u^h,g)
+    \end{equation}
+
+    Juntaremos agora a Eq. \eqref{eq:lem1} com a Eq. \eqref{eq:lem2}. Além disso, sabemos que a função de Green $g(x)$ representa retas que ligam pontos. Se $x=y$ for um nó da malha, então as funções de forma lineares de $w^h(x)$ conseguem representar de forma exata $g(x)$, isto é $g(x) \in W^h$.
+
+    \begin{equation*}
+        u(y) - u^h(y) = a(u-u^h,g) = a(g, u-u^h) = 0
+    \end{equation*}
+
+    \begin{equation}
+        u(y) = u^h(y)
+    \end{equation}
+
+    Desta forma, fica provado que, para o elemento de barra, a solução aproximada $u^h(y)$ será exata para os pontos $x=y$ que são coordenadas de algum nó da malha.

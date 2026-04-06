@@ -61,7 +61,7 @@ html_context = {
   'github_user': 'Lopes941',
   'github_repo': 'finelpy',
   'github_version': 'main',
-  'conf_py_path': '/docs/source',
+  'conf_py_path': '/docs/source/',
 }
 
 html_static_path = ['_static']

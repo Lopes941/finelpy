@@ -1,0 +1,66 @@
+\babel@toc {brazil}{}\relax 
+\contentsline {section}{\numberline {1}Introdução}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Sobre a apostila e o método}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Instalação da biblioteca}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Revisão programação em Python}{4}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Revisão de conceitos de cálculo}{8}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Revisão de conceitos de álgebra linear}{10}{subsection.1.5}%
+\contentsline {section}{\numberline {2}Revisão modelo de barra}{14}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Hipóteses}{14}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Dedução da equação diferencial}{14}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Solução por funções de singularidade}{16}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Exemplos}{17}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Exemplo 1:}{17}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Exemplo 2:}{19}{subsubsection.2.4.2}%
+\contentsline {section}{\numberline {3}Solução aproximada de problema unidimensional - barra}{23}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Forma forte e forma fraca}{23}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Método dos Resíduos Ponderados e Método de Galerkin}{25}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Funções de forma}{26}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Considerações sobre condições de contorno e a solução}{27}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Condiderações sobre o método}{29}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Elemento de barra}{30}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Funções de forma definidas por trecho}{30}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Matriz elementar}{35}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Montagem do sistema global}{36}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Coordenadas locais e mudança de coordenadas}{38}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Polinômios de Lagrange}{40}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Integração por Quadratura de Gauss-Legendre}{42}{subsection.4.6}%
+\contentsline {subsubsection}{\numberline {4.6.1}Polinômios de Legendre}{43}{subsubsection.4.6.1}%
+\contentsline {subsubsection}{\numberline {4.6.2}Quadratura de Gauss-Legendre}{45}{subsubsection.4.6.2}%
+\contentsline {subsubsection}{\numberline {4.6.3}Exemplo 1}{46}{subsubsection.4.6.3}%
+\contentsline {subsubsection}{\numberline {4.6.4}Exemplo 2}{47}{subsubsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.7}Conclusão}{48}{subsection.4.7}%
+\contentsline {section}{\numberline {5}Revisão modelo de viga}{49}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Hipóteses}{49}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Dedução da equação diferencial}{49}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Funções de sigularidade}{52}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Exemplo}{53}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Elemento de viga}{56}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Obtenção da forma fraca}{56}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Polinômios de Hermite}{56}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Resíduos ponderados e Galerkin}{57}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Matriz elementar}{59}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Exemplo}{59}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Elemento de pórtico}{61}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Exemplo de sistema de pórticos - treliça}{63}{subsection.6.7}%
+\contentsline {section}{\numberline {7}Problema de condução de calor}{65}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Equação diferencial da condução de calor}{65}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Forma fraca e aproximação da solução}{66}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Método de Galerkin}{67}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Elemento triangular regular}{68}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Estado plano}{71}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Equilíbrio 2D}{71}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Modelos constitutivos}{72}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Cinemática}{72}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Forma fraca}{73}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Resíduos ponderados e funções de forma}{74}{subsection.8.5}%
+\contentsline {section}{\numberline {9}Elemento isoparamétrico}{76}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Elemento quadrangular isoparamétrico}{76}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Elemento hexaédrico isoparamétrico}{78}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Integração no domínio 2D e 3D}{79}{subsection.9.3}%
+\contentsline {subsubsection}{\numberline {9.3.1}Exemplo}{80}{subsubsection.9.3.1}%
+\contentsline {section}{\numberline {10}Considerações e propriedades}{82}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Refino p e h}{82}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Singularidades}{82}{subsection.10.2}%
+\contentsline {section}{Apêndice}{83}{subsection.10.2}%
+\contentsline {subsection}{\numberline {A}Superconvergência}{83}{subsection.10.1}%

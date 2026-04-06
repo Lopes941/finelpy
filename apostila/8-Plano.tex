@@ -1,0 +1,448 @@
+%LTeX: language=pt-br
+% !TeX root = Apostila_IM381.tex
+
+\cleardoublepage
+\section{Estado plano}
+\label{sec:estado_plano}
+
+    \subsection{Equilíbrio 2D}
+
+        Considere o domínio da Figura \ref{fig:dominio_elastico}, sujeito a forças externas aplicadas, forças de campo $\mathbf{b}(x,y)$ e a condições de contorno. Considerando um elemento infinitesimal (Figura \ref{fig:equilíbrio}), aparecem os termos de tensão, que descrevem o equilíbrio:
+
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[scale=1.4]{Figures/8-Plano/Dominio.pdf}
+            \caption{Domínio de uma estrutura linear elástica sujeita a forças externas}
+            \label{fig:dominio_elastico}
+        \end{figure}
+
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[scale=1.4]{Figures/8-Plano/Infinitesimal.pdf}
+            \caption{Equilíbrio de um elemento infinitesimal na estrutura}
+            \label{fig:equilíbrio}
+        \end{figure}
+
+        \begin{equation*}
+            \sum F_x = 0 
+        \end{equation*}
+
+        \begin{equation*}
+            -\sigma_{xx}dy - \tau_{xy}dx + 
+            \left(\sigma_{xx} + \frac{\partial \sigma_{xx}}{\partial x} dx\right) dy +
+            \left(\tau_{xy} + \frac{\partial \tau_{xy}}{\partial y} dy\right) dx +
+            b_x(x,y) dx dy = 0
+        \end{equation*}
+
+        \begin{equation*}
+            \frac{\partial \sigma_{xx}}{\partial x} +
+            \frac{\partial \tau_{xy}}{\partial y} +
+            b_x(x,y) = 0
+        \end{equation*}
+
+
+        \begin{equation*}
+            \sum F_y = 0
+        \end{equation*}
+
+        \begin{equation*}
+            -\sigma_{yy}dx - \tau_{xy}dy + 
+            \left(\sigma_{yy} + \frac{\partial \sigma_{yy}}{\partial y} dy\right) dx +
+            \left(\tau_{xy} + \frac{\partial \tau_{xy}}{\partial x} dx\right) dy +
+            b_y(x,y) dx dy = 0
+        \end{equation*}
+
+        \begin{equation*}
+            \frac{\partial \tau_{xy}}{\partial x} +
+            \frac{\partial \sigma_{yy}}{\partial y} +
+            b_y(x,y) = 0
+        \end{equation*}
+
+        Portanto, temos o sistema:
+
+        \begin{equation}
+            \left\{
+            \begin{array}{l}
+                 \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \tau_{xy}}{\partial y} + b_x(x,y) = 0\\
+                 \frac{\partial \tau_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + b_y(x,y) = 0
+            \end{array}
+            \right.
+            \label{eq:equilibrio2D}
+        \end{equation}
+
+        No caso geral 3D, teríamos a seguinte equação:
+
+        \begin{equation}
+            \left\{
+            \begin{array}{l}
+                 \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \tau_{xy}}{\partial y} + \frac{\partial \tau_{xz}}{\partial z} + b_x(x,y,z) = 0\\
+                 \frac{\partial \tau_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + \frac{\partial \tau_{yz}}{\partial z} + b_y(x,y,z) = 0\\
+                 \frac{\partial \tau_{xz}}{\partial x} + \frac{\partial \tau_{yz}}{\partial y} + \frac{\partial \sigma_{zz}}{\partial z} + b_z(x,y,z) = 0
+            \end{array}
+            \right.
+        \end{equation}
+
+        Podemos escrever em uma única equação como:
+
+        \begin{equation}
+            \nabla \cdot \mathbf{T} + \mathbf{b} = \mathbf{0}
+            \label{eq:equilibrio}
+        \end{equation}
+
+        \noindent no qual $\mathbf{T}$ é o tensor de tensão de Cauchy:
+
+        \begin{equation*}
+            \mathbf{T} = 
+            \begin{bmatrix}
+                \sigma_{xx} & \tau_{xy}   & \tau_{xz}\\
+                \tau_{xy}   & \sigma_{yy} & \tau_{yz}\\
+                \tau_{xz}   & \tau_{yz}   & \sigma_{zz}
+            \end{bmatrix}
+        \end{equation*}
+
+    \subsection{Modelos constitutivos}
+
+        Outra notação para as tensões e deformações é a chamada notação de Voigt, no qual as componentes de tensão e deformação são escritas como um vetor, em vez de um tensor.
+
+        À relação entre tensão e deformação, dá-se o nome de equação constitutiva. Estudaremos aqui dois modelos, ambos usados para simular o comportamento de estruturas de forma 2D. Os modelos apresentados aqui são o estado plano de tensão e o estado plano de deformação. Ambos os modelos são caracterizados por materiais lineares elásticos e isotrópicos, sujeitos a pequenas deformações e deslocamentos.
+
+        O estado plano de tensão é usado para modelar corpos finos, nos quais podemos adotar a hipótese que quaisquer tensões na direção fina (eixo $z$) serão muito menores que as tensões nas outras direções. A relação entre as tensões e deformações no plano $xy$ é:
+
+        \begin{equation}
+            \begin{Bmatrix}
+                \sigma_{xx}\\
+                \sigma_{yy}\\
+                \tau_{xy}\\
+            \end{Bmatrix}
+            =
+            \frac{E}{1-\nu^2}
+            \begin{bmatrix}
+                1 & \nu & 0\\
+                \nu & 1 & 0\\
+                0 & 0 & \frac{1-\nu}{2}
+            \end{bmatrix}
+            \begin{Bmatrix}
+                \varepsilon_{xx}\\
+                \varepsilon_{yy}\\
+                \gamma_{xy}\\
+            \end{Bmatrix}
+        \end{equation}
+
+        \begin{equation}
+            \bm{\sigma} =
+            \mathbf{D}
+            \bm{\varepsilon}
+        \end{equation}
+
+
+        \noindent no qual $E$ é o módulo de Young e $\nu$ é o coeficiente de Poisson do material.
+
+        O estado plano de deformação é usado para modelar corpos espessos, como pontes e barragens, nos quais podemos adotar a hipótese que quaisquer deformações na direção espessa (eixo $z$) serão muito menores que as deformações nas outras direções. A relação entre as tensões e deformações no plano $xy$ é:
+
+        \begin{equation*}
+            \begin{Bmatrix}
+                \sigma_{xx}\\
+                \sigma_{yy}\\
+                \tau_{xy}\\
+            \end{Bmatrix}
+            =
+            \frac{E}{\left(1+\nu\right)\left(1-2\nu\right)}
+            \begin{bmatrix}
+                1-\nu & \nu & 0\\
+                \nu & 1-\nu & 0\\
+                0 & 0 & \frac{1-2\nu}{2}
+            \end{bmatrix}
+            \begin{Bmatrix}
+                \varepsilon_{xx}\\
+                \varepsilon_{yy}\\
+                \gamma_{xy}\\
+            \end{Bmatrix}
+        \end{equation*}
+
+        \begin{equation}
+            \bm{\sigma} =
+            \mathbf{D}
+            \bm{\varepsilon}
+        \end{equation}
+
+    \subsection{Cinemática}
+
+        As deformações, por sua vez, podem ser correlacionadas com os deslocamentos da estrutura. A função incógnita do problema de equilíbrio estático é o campo de deslocamento $\mathbf{u}$ da estrutura, que possui componentes em cada direção, no caso 2D:
+
+        \begin{equation}
+            \mathbf{u}(\mathbf{x}) = 
+            \begin{Bmatrix}
+                u(\mathbf{x})\\
+                v(\mathbf{x})
+            \end{Bmatrix},
+        \end{equation}
+
+        \noindent enquanto que no 3D, aparece um deslocamento $w(\mathbf{x})$ no eixo $z$.
+
+        O tensor de deformação infinitesimal é dado por:
+        
+        \begin{equation*}
+            \mathbf{E} = 
+            \begin{bmatrix}
+                \varepsilon_{xx} & \varepsilon_{xy} & \varepsilon_{xz}\\
+                \varepsilon_{xy} & \varepsilon_{yy} & \varepsilon_{yz}\\
+                \varepsilon_{xz} & \varepsilon_{yz} & \varepsilon_{zz}
+            \end{bmatrix}
+            = \frac{1}{2} \left(\nabla \mathbf{u} + \nabla \mathbf{u}^T\right)=
+            \begin{bmatrix}
+                \frac{\partial u}{\partial x} & 
+                \frac{1}{2} \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) & 
+                \frac{1}{2} \left( \frac{\partial u}{\partial z} + \frac{\partial w}{\partial x} \right)\\
+                \frac{1}{2} \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) & 
+                \frac{\partial v}{\partial y} & 
+                \frac{1}{2} \left( \frac{\partial v}{\partial z} + \frac{\partial w}{\partial y} \right)\\
+                \frac{1}{2} \left( \frac{\partial u}{\partial z} + \frac{\partial w}{\partial x} \right) & 
+                \frac{1}{2} \left( \frac{\partial v}{\partial z} + \frac{\partial w}{\partial y} \right) & 
+                \frac{\partial w}{\partial z}
+            \end{bmatrix}
+            \label{eq:deformacao_green}
+        \end{equation*}
+
+        Na notação de Voigt, no 2D, sabendo que $\gamma_{xy} = 2\varepsilon_{xy}$, $\gamma_{xz} = 2\varepsilon_{xz}$ e $\gamma_{yz} = 2\varepsilon_{yz}$:
+
+        \begin{equation}
+            \begin{Bmatrix}
+                \varepsilon_{xx}\\
+                \varepsilon_{yy}\\
+                \gamma_{xy}\\
+            \end{Bmatrix}
+            =
+            \begin{Bmatrix}
+                \frac{\partial u}{\partial x}\\
+                \frac{\partial v}{\partial y}\\
+                \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\\
+            \end{Bmatrix}
+            =
+            \begin{bmatrix}
+                \frac{\partial}{\partial x} & 0\\
+                0 & \frac{\partial}{\partial y}\\
+                \frac{\partial}{\partial y} & \frac{\partial}{\partial x}\\
+            \end{bmatrix}
+            \begin{Bmatrix}
+                u\\
+                v\\
+            \end{Bmatrix}
+            =
+            \mathbf{B}_L
+            \mathbf{u}
+            \label{eq:voigt_deformacao}
+        \end{equation}
+
+
+    \subsection{Forma fraca}
+
+        Voltando à equação de equilíbrio (Eq. \eqref{eq:equilibrio}). As funções candidatas $\mathbf{u}(\mathbf{x})$ se encontram no espaço $V$. Considere agora também uma função peso, que também é uma função vetorial de mesma dimensão, $\mathbf{w}(\mathbf{x})$, no espaço $W$. Desta forma, temos a condição:
+
+        \begin{equation}
+            \int_\Omega \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right)dA + \int_\Omega \mathbf{w} \cdot \mathbf{b} = 0
+            \label{eq:elastico_fraca_part1}
+        \end{equation}
+
+        Vamos utilizar a relação:
+
+        \begin{equation}
+            \nabla \cdot \left(\mathbf{w} \cdot \mathbf{T}\right) = \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right) + \nabla\mathbf{w} : \mathbf{T}
+        \end{equation}
+
+        \noindent no qual as operações entre vetor e matriz mostradas aqui são as seguintes: o produto escalar  entre um vetor e matriz ($\mathbf{w} \cdot \mathbf{T}$) é definido como um vetor que contém o produto escalar entre o vetor com cada coluna da matriz. O produto dois pontos entre duas matrizes, é o produto escalar entre duas matrizes, a soma do produto termo a termo de cada matriz.
+
+        Como o tensor $\mathbf{T}$ é simétrico, teremos que:
+
+        \begin{equation}
+            \nabla \cdot \left(\mathbf{w} \cdot \mathbf{T}\right) = \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right) + \left[\frac{\nabla\mathbf{w} + \nabla\mathbf{w}^T}{2}\right] : \mathbf{T}
+        \end{equation}
+
+        Notando a similaridade com a Eq. \eqref{eq:deformacao_green}:
+
+        \begin{equation}
+            \nabla \cdot \left(\mathbf{w} \cdot \mathbf{T}\right) = \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right) + \mathbf{E}_w : \mathbf{T}
+        \end{equation}
+
+
+        Integrando essa equação e usando o teorema do divergente:
+
+        \begin{equation*}
+            \int_\Omega \nabla \cdot \left(\mathbf{w} \cdot \mathbf{T}\right)dA = 
+            \int_\Omega \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right)dA +
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA
+        \end{equation*}
+
+        \begin{equation*}
+            \int_{\partial \Omega} \mathbf{w} \cdot \mathbf{T} \cdot \mathbf{n} \; d\Gamma = 
+            \int_\Omega \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right)dA +
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA
+        \end{equation*}
+
+        \begin{equation*}
+            \int_{\partial \Omega} \mathbf{w} \cdot \mathbf{t} \; d\Gamma = 
+            \int_\Omega \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right)dA +
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA
+        \end{equation*}
+
+        \begin{equation}
+            \int_\Omega \mathbf{w} \cdot \left(\nabla \cdot \mathbf{T}\right)dA = 
+            \int_{\partial \Omega} \mathbf{w} \cdot \mathbf{t} \; d\Gamma -
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA
+        \end{equation}
+
+        \noindent no qual $\mathbf{t}$ são as forças superficiais que aparecem em uma determinada seção da estrutura, no caso, normal à superfície $d\Gamma$.
+
+        Retornando, então à Eq \eqref{eq:elastico_fraca_part1}:
+
+        \begin{equation}
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA = \int_{\partial \Omega} \mathbf{w}^T \mathbf{t} \; d\Gamma + \int_\Omega \mathbf{w}^T \mathbf{b} \; dA
+            \label{eq:elastico_fraca_part2}
+        \end{equation}
+
+        Podemos reescrever a primeira integral, usando a notação de Voigt, em vez de usar vetores. Usaremos a relação das Eq. \eqref{eq:voigt_deformacao}:
+
+        \begin{equation}
+            \int_\Omega \mathbf{E}_w : \mathbf{T} \; dA = \int_\Omega \bm{\varepsilon}_w^T \bm{\sigma} dA =  \int_\Omega \mathbf{w}^T \mathbf{B}_L^T \mathbf{D} \mathbf{B}_L \mathbf{u} dA
+        \end{equation}
+
+        Portanto, a forma fraca deste sistema fica:
+
+        \begin{equation}
+            \int_\Omega \mathbf{w}^T \mathbf{B}_L^T \mathbf{D} \mathbf{B}_L \mathbf{u} dA = \int_{\partial \Omega} \mathbf{w}^T \mathbf{t} \; d\Gamma + \int_\Omega \mathbf{w}^T \mathbf{b} \; dA \quad, \forall \mathbf{w} \in W
+            \label{eq:elastico_fraca}
+        \end{equation}
+
+    \subsection{Resíduos ponderados e funções de forma}
+
+        Agora, consideremos uma solução aproximada $\mathbf{u}^h(\mathbf{x}) \in V^h$ e funções peso que pertencem a um espaço $W^h$ gerado pelas mesmas funções (método de Galerkin):
+
+        \begin{equation}
+            \int_\Omega {\mathbf{w}^h}^T \mathbf{B}_L^T \mathbf{D} \mathbf{B}_L \mathbf{u}^h dA = \int_{\partial \Omega} {\mathbf{w}^h}^T \mathbf{t} \; d\Gamma + \int_\Omega {\mathbf{w}^h}^T \mathbf{b} \; dA \quad, \forall \mathbf{w}^h \in W^h
+        \end{equation}
+
+        A solução é aproximada novamente por funções de forma. Entretanto, neste caso, como o campo de deslocamento é vetorial, cada componente é interpolado:
+
+        \begin{equation}
+            u^h(\mathbf{x}) = \sum_i N_i(\mathbf{x}) u_i
+        \end{equation}
+
+        \begin{equation}
+            v^h(\mathbf{x}) = \sum_i N_i(\mathbf{x}) v_i
+        \end{equation}
+
+        \begin{equation}
+            \mathbf{u}^h(\mathbf{x}) = 
+            \begin{Bmatrix}
+                u^h(\mathbf{x})\\
+                v^h(\mathbf{x})
+            \end{Bmatrix} =
+            \begin{bmatrix}
+                N_1 & 0 & N_2 & 0 & \cdots & N_n & 0\\
+                0 & N_1 & 0 & N_2 & 0 & \cdots & 0 & N_n\\
+            \end{bmatrix}
+            \begin{Bmatrix}
+                u_1\\
+                v_1\\
+                u_2\\
+                v_2\\
+                \vdots\\
+                u_n\\
+                v_n\\
+            \end{Bmatrix} =
+            \mathbf{N}(\mathbf{x})
+            \mathbf{a}
+        \end{equation}
+
+        \begin{equation}
+            \mathbf{w}^h(\mathbf{x}) = 
+            \mathbf{N}(\mathbf{x})
+            \mathbf{m}
+        \end{equation}
+
+        Com as funções de forma, os termos com $\mathbf{B}_L$ das integrais ficam:
+
+        \begin{equation*}
+            \mathbf{B}_L \mathbf{u}^h = 
+             \begin{bmatrix}
+                \frac{\partial}{\partial x} & 0\\
+                0 & \frac{\partial}{\partial y}\\
+                \frac{\partial}{\partial y} & \frac{\partial}{\partial x}\\
+            \end{bmatrix}
+            \begin{bmatrix}
+                N_1 & 0 & N_2 & 0 & \cdots & N_n & 0\\
+                0 & N_1 & 0 & N_2 & 0 & \cdots & 0 & N_n\\
+            \end{bmatrix}
+            \begin{Bmatrix}
+                u_1\\
+                v_1\\
+                u_2\\
+                v_2\\
+                \vdots\\
+                u_n\\
+                v_n\\
+            \end{Bmatrix}
+        \end{equation*}
+
+        \begin{equation}
+            \mathbf{B}_L \mathbf{u}^h = 
+             \begin{bmatrix}
+                \frac{\partial N_1}{\partial x} & 0 & \cdots & \frac{\partial N_n}{\partial x} & 0\\
+                0 & \frac{\partial N_1}{\partial y} & \cdots & 0 & \frac{\partial N_n}{\partial y}\\
+                \frac{\partial N_1}{\partial y} & \frac{\partial N_1}{\partial x} & \cdots & \frac{\partial N_n}{\partial y} & \frac{\partial N_n}{\partial x}\\
+            \end{bmatrix}
+            \begin{Bmatrix}
+                u_1\\
+                v_1\\
+                u_2\\
+                v_2\\
+                \vdots\\
+                u_n\\
+                v_n\\
+            \end{Bmatrix}
+            =
+            \mathbf{B}
+            \mathbf{a}
+        \end{equation}
+
+        Portanto, a forma fraca aproximada, já substituindo os valores de $\mathbf{B}$, fica:
+
+        \begin{equation}
+            \mathbf{m}^T\int_\Omega  \mathbf{B}^T \mathbf{D} \mathbf{B} dA \; \mathbf{a} = \mathbf{b}^T \int_{\partial \Omega} \mathbf{N}^T \mathbf{t} \; d\Gamma + \mathbf{m}^T \int_\Omega \mathbf{N}^T \mathbf{b} \; dA
+        \end{equation}
+
+        Como esta equação deve ser válida para qualquer valor de $\mathbf{w}^h \in W^h$, então deve ser válido para qualquer combinação de $\mathbf{m}$. Portanto, temos o seguinte sistema linear:
+
+        \begin{equation}
+            \int_\Omega  \mathbf{B}^T \mathbf{D} \mathbf{B} dA \; \mathbf{a} = \int_{\partial \Omega} \mathbf{N}^T \mathbf{t} \; d\Gamma + \int_\Omega \mathbf{N}^T \mathbf{b} \; dA
+        \end{equation}
+
+        Para resolver este sistema, novamente montaremos as matrizes elementares $\mathbf{K}_e$ e os vetores de força elementares. Além disso, se quisermos encontrar as deformações ou as tensões, após calcularmos o vetor de deslocamento nodal, podemos usar as relações:
+
+        \begin{equation*}
+            \bm{\varepsilon}(\mathbf{x}) = 
+            \begin{Bmatrix}
+                \varepsilon_{xx}\\
+                \varepsilon_{yy}\\
+                \gamma_{xy}
+            \end{Bmatrix}=
+            \mathbf{B}(\mathbf{x}) \mathbf{a}
+        \end{equation*}
+
+        \begin{equation*}
+            \bm{\sigma}(\mathbf{x}) = 
+            \begin{Bmatrix}
+                \sigma_{xx}\\
+                \sigma_{yy}\\
+                \tau_{xy}
+            \end{Bmatrix}=
+            \mathbf{D} \mathbf{B}(\mathbf{x}) \mathbf{a}
+        \end{equation*}
+
+        Com os termos de tensão e deformação encontrados aqui, podemos calcular, em cada ponto, termos que dependem dessas grandezas. Por exemplo, podemos encontrar as tensões ou deformações principais. Podemos calcular tensões equivalentes, como a tensão equivalente de von Mises. 
+
+
+
+
+
+
+

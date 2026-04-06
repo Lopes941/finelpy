@@ -1,0 +1,56 @@
+%LTeX: language=pt-br
+\documentclass[12pt,a4paper,oneside]{article}
+
+\input{Pacotes}
+\usepackage{amsmath,scalefnt}
+\usepackage{afterpage} 
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+ 
+\begin{document}
+
+	\input{Capa}
+	\thispagestyle{empty}
+	\cleardoublepage
+
+	\tableofcontents
+	\cleardoublepage
+
+
+	\input{1-Introducao.tex}
+
+	\input{2-Resmat.tex}
+
+	\input{3-Barra.tex}
+
+	\input{4-Elemento_barra.tex}
+
+	\input{5-Viga_an.tex}
+
+	\input{6-Elemento_viga.tex}
+
+	\input{7-Calor.tex}
+
+	\input{8-Plano.tex}
+ 
+	\input{9-Isoparametrico.tex}
+
+	\input{10-Consideracoes.tex}
+
+	
+	
+ 
+	\cleardoublepage
+	\section*{Apêndice}%
+    \addcontentsline{toc}{section}{Apêndice}%
+    \markright{Apêndice}
+	\setcounter{subsection}{0}
+	\renewcommand\thesubsection{\Alph{subsection}}
+	
+	\input{A-superconvergencia.tex}
+
+\end{document}
