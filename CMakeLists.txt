@@ -67,9 +67,12 @@ if(NOT Eigen3_FOUND)
     FetchContent_Declare(
     eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG 5.0.1
+    GIT_TAG 3.4.0
     )
     FetchContent_MakeAvailable(eigen)
+
+    list(APPEND CMAKE_PREFIX_PATH "${eigen_BINARY_DIR}" "${eigen_SOURCE_DIR}")
+    set(Eigen3_DIR "${eigen_BINARY_DIR}")
 endif()
 
 
