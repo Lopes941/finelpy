@@ -105,7 +105,8 @@ def plot_mesh2D(self,
                 colormap=None,
                 facecolors="gray",
                 fig=None,
-                ax=None):
+                ax=None,
+                alpha = 1):
     
     from matplotlib.collections import PolyCollection
 
@@ -122,7 +123,7 @@ def plot_mesh2D(self,
     polygons = self.ravel_elements
 
     if element_data is None:
-        pc = PolyCollection(polygons,facecolors=facecolors,edgecolors=edge_color)
+        pc = PolyCollection(polygons,facecolors=facecolors,edgecolors=edge_color, alpha=alpha)
     else:
         if np.max(element_data) <= 1 and np.min(element_data) >= 0 and colormap is None:
             colormap = 'binary'

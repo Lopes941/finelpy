@@ -35,6 +35,7 @@ void bind_material(py::module_& handle){
           .value("POISSON_XY", MaterialProperties::POISSON_XY, R"pbdoc(Poisson's ratio on XY axes.)pbdoc")
           .value("POISSON_XZ", MaterialProperties::POISSON_XZ, R"pbdoc(Poisson's ratio on XZ axes.)pbdoc")
           .value("POISSON_YZ", MaterialProperties::POISSON_YZ, R"pbdoc(Poisson's ratio on YZ axes.)pbdoc")
+          .value("THERMAL_COND", MaterialProperties::THERMAL_COND, R"pbdoc(Thermal conductivity.)pbdoc")
           .value("THERMAL_COND_X", MaterialProperties::THERMAL_COND_X, R"pbdoc(Thermal conductivity on X axis.)pbdoc")
           .value("THERMAL_COND_Y", MaterialProperties::THERMAL_COND_Y, R"pbdoc(Thermal conductivity on Y axis.)pbdoc")
           .value("THERMAL_COND_Z", MaterialProperties::THERMAL_COND_Z, R"pbdoc(Thermal conductivity on Z axis.)pbdoc")

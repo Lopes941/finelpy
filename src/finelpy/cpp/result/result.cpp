@@ -68,6 +68,21 @@ namespace finelc{
         }
     }
 
+    double get_sigma_vonmises(const Vector& loc, const Vector& ue, IElement_ptr el){
+        Vector stress = el->get_stress(loc,ue);
+        double sigma_xx = stress(0);
+        double sigma_yy = stress(1);
+        double sigma_zz = stress(2);
+        double sigma_xy = stress(3);
+        double sigma_xz = stress(4);
+        double sigma_yz = stress(5);
+
+        return std::sqrt(0.5 * ((sigma_xx - sigma_yy) * (sigma_xx - sigma_yy) + 
+                                (sigma_yy - sigma_zz) * (sigma_yy - sigma_zz) + 
+                                (sigma_zz - sigma_xx) * (sigma_zz - sigma_xx)) + 
+                         3.0 * (sigma_xy * sigma_xy + sigma_xz * sigma_xz + sigma_yz * sigma_yz));
+    }
+
     double get_epsilon_xx(const Vector& loc, const Vector& ue, IElement_ptr el){
         Vector stress = el->get_strain(loc,ue);
         return stress(0);
@@ -135,6 +150,10 @@ namespace finelc{
         return ur(dof_number);
     }
 
+    double get_T(const Vector& loc, const Vector& ue, IElement_ptr el){
+        return get_dof_data(loc,ue,el,DOFType::T);
+    }
+
     double get_ux(const Vector& loc, const Vector& ue, IElement_ptr el){
         return get_dof_data(loc,ue,el,DOFType::UX);
     }
@@ -195,6 +214,27 @@ namespace finelc{
         return vy(0);
     }
 
+    double get_qx(const Vector& loc, const Vector& ue, IElement_ptr el){
+        Vector q =  el->get_heat_flux(loc,ue);
+        return q(0);
+    }
+
+    double get_qy(const Vector& loc, const Vector& ue, IElement_ptr el){
+        Vector q =  el->get_heat_flux(loc,ue);
+        return q(1);
+    }
+
+    double get_qz(const Vector& loc, const Vector& ue, IElement_ptr el){
+        Vector q =  el->get_heat_flux(loc,ue);
+        return q(2);
+    }
+
+    double get_q_abs(const Vector& loc, const Vector& ue, IElement_ptr el){
+        Vector q =  el->get_heat_flux(loc,ue);
+        return std::sqrt(q(0)*q(0) + q(1)*q(1) + q(2)*q(2));
+    }
+
+
 
     SupportFn get_support_func(ResultData id){
 
@@ -242,6 +282,14 @@ namespace finelc{
                 return &IElement::supports_VY;
                 break;
 
+            case ResultData::T:
+            case ResultData::QX:
+            case ResultData::QY:
+            case ResultData::QZ:
+            case ResultData::ABS_Q:
+                return &IElement::supports_heat_flux;
+                break;
+
             default:
                 return &IElement::supports_displacement;
         }
@@ -250,6 +298,10 @@ namespace finelc{
     EvalFnPtr get_eval_func(ResultData id){
 
         switch (id) {
+
+            case ResultData::T:
+                return &get_T;
+                break;
 
             case ResultData::UX:
                 return &get_ux;
@@ -326,9 +378,9 @@ namespace finelc{
                 return &get_sigma_yz;
                 break;
 
-            // case ResultData::SIGMA_VONMISES:
-            //     return &IElement::supports_stress;
-            //     break;
+            case ResultData::SIGMA_VONMISES:
+                return &get_sigma_vonmises;
+                break;
 
             case ResultData::NX:
                 return &get_nx;
@@ -341,6 +393,22 @@ namespace finelc{
 
             case ResultData::VY:
                 return &get_vy;
+                break;
+
+            case ResultData::QX:
+                return &get_qx;
+                break;
+
+            case ResultData::QY:
+                return &get_qy;
+                break;
+
+            case ResultData::QZ:
+                return &get_qz;
+                break;
+
+            case ResultData::ABS_Q:
+                return &get_q_abs;
                 break;
 
 

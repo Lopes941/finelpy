@@ -111,6 +111,10 @@ namespace finelc{
                 return alpha;
             }
 
+            VectorNodes displaced_nodes(double scale=1)const{
+                return analysis->displaced_nodes(U,scale);
+            }
+
     };
 
 

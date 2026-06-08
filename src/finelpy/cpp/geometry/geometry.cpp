@@ -56,12 +56,12 @@ namespace finelc{
     }
     
 
-    bool IArea::is_inside(const Point& p)const{
+    bool IArea::is_inside(const Point& p,double tol)const{
 
         auto [n, k] = get_equation();
 
         // Must lie on plane
-        if (std::abs(n.dot(p.as_vector()) - k) > 1e-7)
+        if (std::abs(n.dot(p.as_vector()) - k) > tol)
             return false;
 
         for (size_t i = 0; i < vertices->size(); ++i)
@@ -74,7 +74,7 @@ namespace finelc{
 
             Vector cross = edge.cross(toP);
 
-            if (n.dot(cross) < - 1e-7)
+            if (n.dot(cross) < - tol)
                 return false;
         }
 
@@ -215,7 +215,7 @@ namespace finelc{
     }
     
 
-    bool IVolume::is_inside(const Point& p)const{
+    bool IVolume::is_inside(const Point& p, double tol)const{
 
         double minimum_x = p.x;
         for(auto& point: *vertices){
@@ -227,7 +227,7 @@ namespace finelc{
 
         Line x_line = Line(Point(minimum_x,p.y,p.z), p);
         for(auto& face : *faces){
-            if(face.is_inside(p)) return true;
+            if(face.is_inside(p,tol)) return true;
             if(get_line_area_intersection(face, x_line).is_intersect){
                 num_intersect++;
             }

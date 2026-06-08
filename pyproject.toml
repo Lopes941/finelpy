@@ -26,10 +26,10 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
 ]
 
-# [project.urls]
-# Homepage = "https://github.com/yourusername/finelpy"
-# Source = "https://github.com/yourusername/finelpy"
-# Issues = "https://github.com/yourusername/finelpy/issues"
+[project.urls]
+Homepage = "https://github.com/Lopes941/finelpy"
+Source = "https://github.com/Lopes941/finelpy"
+Issues = "https://github.com/Lopes941/finelpy/issues"
 
 [tool.scikit-build]
 wheel.packages = ["src/finelpy"]

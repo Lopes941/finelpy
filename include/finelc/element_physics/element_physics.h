@@ -197,9 +197,28 @@ namespace finelc{
                                         const Vector& ue, 
                                         const Matrix& dNdx,
                                         const Matrix& D)const;
-            
-            
 
+            /**
+             * @brief Check if the element supports heat flux computation.
+             * 
+             * @return false by default. Must be overridden in derived classes.
+             */
+            virtual bool supports_heat_flux()const{return false;}
+
+            /**
+             * @brief Get the heat flux  at a given location.
+             * 
+             * @param loc The local coordinates where the stress is to be computed.
+             * @param ue The vector of nodal values.
+             * @param dNdx The derivatives of the interpolation functions with respect to global coordinates.
+             * @param D The constitutive matrix.
+             * 
+             * @return Vector The heat flux at the specified location.
+             */
+            virtual Vector get_heat_flux( const Vector& loc, 
+                                const Vector& ue,
+                                const Matrix& dNdx,
+                                const Matrix& D)const;
             
     };
 
@@ -225,6 +244,7 @@ namespace finelc{
     struct Tag_Mz {}; // tag to identify Mz computation
     struct Tag_Vy {}; // tag to identify Vy computation
     struct Tag_Nx {}; // tag to identify Nx computation
+    struct Tag_get_heat_flux {}; // tag to identify heat flux computation
 
     /**
      * @brief Trait to check if a specific result computation is supported by the element physics.
@@ -518,6 +538,39 @@ namespace finelc{
                 }
                 return Vector();
             }
+
+            /**
+             * @brief Check if the element supports heat flux computation.
+             * 
+             * @return true if supported, false otherwise.
+             */
+            bool supports_heat_flux()const override{
+                return SupportsResult<ElPhysics,Tag_get_heat_flux>::value;
+            }
+
+            /**
+             * @brief Get the heat flux  at a given location.
+             * 
+             * @param loc The local coordinates where the stress is to be computed.
+             * @param ue The vector of nodal values.
+             * @param dNdx The derivatives of the interpolation functions with respect to global coordinates.
+             * @param D The constitutive matrix.
+             * 
+             * @return Vector The heat flux at the specified location.
+             */
+            Vector get_heat_flux( const Vector& loc, 
+                                const Vector& ue,
+                                const Matrix& dNdx,
+                                const Matrix& D)const override{
+
+                if constexpr(SupportsResult<ElPhysics,Tag_get_heat_flux>::value){
+                    return ElPhysics::compute(Tag_get_heat_flux{},loc,ue,dNdx,D);
+                }else{
+                    error_message("get_heat_flux()");
+                }
+                return Vector();
+            }
+
     };
 
 } // namespace finelc

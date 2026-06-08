@@ -122,64 +122,52 @@ namespace finelc{
 
             std::vector<int> nodes_or_elements;
 
-            std::vector<int> nodes_from_mesh(const Mesh_ptr mesh){
-                
-                const VectorNodes& nodes = mesh->get_nodes();
-
-                std::vector<int> force_nodes;
-                for(int nd=0; nd<nodes.size(); nd++){
-                    if(domain->is_inside(*nodes[nd])){
-                        force_nodes.emplace_back(nd);
-                    }
-                }
-                return force_nodes;
-            }
+            std::vector<int> nodes_from_mesh(const Mesh_ptr mesh);
 
         public:
+
             Force(DOFType dof_, IGeometry_ptr domain_, Evalfn function, int integration_points_=10):
-                force_type(ForceType::Function), dof_type(dof_), domain(domain_), value(function), integration_points(integration_points_){}
+                force_type(ForceType::Function), 
+                dof_type(dof_), 
+                domain(domain_), 
+                value(function), 
+                integration_points(integration_points_)
+            {}
 
             Force(DOFType dof_, IGeometry_ptr domain_, double constant_, int integration_points_=10):
-                force_type(ForceType::Constant), dof_type(dof_), domain(domain_), value(constant_), integration_points(integration_points_){}
+                force_type(ForceType::Constant), 
+                dof_type(dof_), 
+                domain(domain_), 
+                value(constant_), 
+                integration_points(integration_points_)
+            {}
 
             Force(DOFType dof_, std::vector<int> nodes_, double value_):
-                force_type(ForceType::Nodal), dof_type(dof_), nodes_or_elements(nodes_), value(value_){}
+                force_type(ForceType::Nodal), 
+                dof_type(dof_), 
+                nodes_or_elements(nodes_), 
+                value(value_)
+            {}
 
             Force(DOFType dof_, int node_, double value_):
-                force_type(ForceType::Nodal), dof_type(dof_), nodes_or_elements({node_}), value(value_){}
+                force_type(ForceType::Nodal), 
+                dof_type(dof_), 
+                nodes_or_elements({node_}),
+                value(value_)
+            {}
 
             
 
-            void get_elements_from_geometry(const Mesh_ptr mesh){
-                
-                std::vector<int> force_nodes = nodes_from_mesh(mesh);
-                nodes_or_elements.clear();
-
-                for(int el_number=0; el_number<mesh->number_of_elements(); el_number++){
-                    const IElement_ptr el = mesh->get_element(el_number);
-                    const std::vector<int>& el_nodes = el->get_node_numbering();
-                    for(const auto& node: el_nodes){
-                        if(std::find(force_nodes.begin(), force_nodes.end(), node) != force_nodes.end()){
-                            nodes_or_elements.emplace_back(el_number);
-                            break;
-                        }
-                    }
-                }
-            }
+            void get_elements_from_geometry(const Mesh_ptr mesh);
             
             const std::vector<int>& get_nodes_or_elements()const{return nodes_or_elements;}
             ForceType get_type()const{return force_type;}
             DOFType get_dof_type()const{return dof_type;}
 
-            double get_value_at(const Point& p)const{
-                if(force_type == ForceType::Nodal || force_type == ForceType::Constant){
-                    return std::get<double>(value);
-                }else{
-                    return std::get<Evalfn>(value)(p);
-                }
-            }
+            double get_value_at(const Point& p)const;
 
             double get_integration_points()const{ return integration_points; }
+            int get_dimension()const{ return domain->get_dimension(); }
 
     };
 
@@ -193,7 +181,7 @@ namespace finelc{
             std::vector<Force> forces;
             int num_free_dofs;
 
-            std::unique_ptr<IInterpolationScheme> interp = nullptr;
+            std::unique_ptr<IInterpolationScheme> interp;
             std::unique_ptr<std::vector<Triplet>> Kg_data = nullptr;
             std::unique_ptr<std::vector<Triplet>> Mg_data = nullptr;
             std::unique_ptr<Vector> fg_data = nullptr; 
@@ -215,8 +203,7 @@ namespace finelc{
                                     int rows,
                                     double interp_const);
 
-            
-                                    
+    
             enum class Assembler: uint8_t{Stiffness, Mass};
 
             Matrix Eigen_Matrix_from_triplets(const std::vector<Triplet>& triplets);
@@ -246,45 +233,43 @@ namespace finelc{
             Matrix Mg();
             const Vector& fg();
 
-            const IDMat& get_ID()const{return ID;}
-
             void set_interpolation(InterpolationScheme name);
-            void update_interpolation(  InterpolationParameters identifier,
-                                        const double value);
+            void update_interpolation(InterpolationParameters identifier, const double value);
+            void update_pseudo_density(double new_rho);
+            void update_pseudo_density(const Vector& new_rho);
 
-            void update_pseudo_density(double new_rho){
-                if(!rho){throw std::runtime_error("Pseudo-density vector not initialized.");}
-                *rho = Vector::Constant(mesh->number_of_elements(),new_rho);
-                Kg_data = nullptr;
-                Mg_data = nullptr;
-            }
-
-            void update_pseudo_density(const Vector& new_rho){
-                if(!rho){throw std::runtime_error("Pseudo-density vector not initialized.");}
-                *rho = new_rho;
-                Kg_data = nullptr;
-                Mg_data = nullptr;
-            }
-
-            InterpolationScheme get_interpolation_name()const{return interp->name();}
-            const Vector& get_pseudo_density()const{return *rho;}
-            Vector get_interpolation()const{return interp->apply(get_pseudo_density());}
-            Vector get_interpolation_derivative()const{return interp->derivative(get_pseudo_density());}
+            InterpolationScheme get_interpolation_name()const;
+            const Vector get_pseudo_density()const;
+            Vector get_interpolation()const;
+            Vector get_interpolation_derivative()const;
 
             Vector get_element_ue(const Vector& U, int el_number)const;
             Vector reconstruct_ug(const Vector& U)const;
+            VectorNodes displaced_nodes(const Vector& U, double scale)const;
 
             int bc_size()const;
-            inline int get_size()const{return num_free_dofs;}
-            inline int total_size()const{return get_size() + bc_size();}
-            inline int number_of_elements()const{return mesh->number_of_elements();}
-            inline IElement_ptr get_element(int el_number)const{return mesh->get_element(el_number);}
-            inline Mesh_ptr get_mesh()const{return mesh;}
+            int get_size()const;
+            int total_size()const;
+            int number_of_elements()const;
 
-            inline const VectorNodes& nodes()const{return mesh->get_nodes();}
-            inline const VectorElements& elements()const{return mesh->get_elements();}
+            IElement_ptr get_element(int el_number)const;
+
+            Mesh_ptr get_mesh()const;
+            const IDMat& get_ID()const;
+            const VectorNodes& nodes()const;
+            const VectorElements& elements()const;
             std::vector<int> get_free_dofs()const;
             std::vector<int> get_bc_dofs()const;
+
+            
+
+
+            void clear_forces();
+
+            void add_force(DOFType dof, int node_number, double value);
+            void add_force(DOFType dof, std::vector<int> nodes, double value);
+            void add_force(DOFType dof, IGeometry_ptr geometry, double value, int integration_points=10);
+            void add_force(DOFType dof, IGeometry_ptr geometry, Evalfn func, int integration_points=10);
             
 
             #ifdef USE_PETSC
@@ -325,8 +310,7 @@ namespace finelc{
             void add_boundary_condition(DOFType dof, IGeometry_ptr geometry, double value);
 
             void add_force(DOFType dof, int node_number, double value);
-            void add_force(DOFType dof, std::vector<int> node_number, double value);
-
+            void add_force(DOFType dof, std::vector<int> nodes, double value);
             void add_force(DOFType dof, IGeometry_ptr geometry, double value, int integration_points=10);
             void add_force(DOFType dof, IGeometry_ptr geometry, Evalfn func, int integration_points=10);
 

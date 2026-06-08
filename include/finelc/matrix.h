@@ -16,6 +16,9 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+#include <Spectra/SymGEigsSolver.h>
+#include <Spectra/MatOp/DenseSymMatProd.h>
+#include <Spectra/MatOp/SparseCholesky.h>
 
 using Vector = Eigen::VectorXd;
 using Triplet = Eigen::Triplet<double>;
@@ -27,9 +30,11 @@ using SparseMatrix = Eigen::SparseMatrix<double, Eigen::RowMajor,FinelIndex>;
 
 using DenseSolver = Eigen::PartialPivLU<DenseMatrix>;
 
-
 using SparseSolver = Eigen::SparseLU<SparseMatrix>;
 using IterativeSolver = Eigen::ConjugateGradient<SparseMatrix, Eigen::Lower|Eigen::Upper,SparseSolver>;
+
+using DenseSymOp = Spectra::DenseSymMatProd<double>;
+using SpartseSymOp = Spectra::SparseCholesky<double>;
 
 
 
@@ -38,7 +43,6 @@ namespace finelc{
     inline Vector default_zero_vec(int size) {
         return Vector::Zero(size);
     }
-
 
     enum class MatrixType: uint8_t{Dense, Sparse};
 
@@ -138,7 +142,6 @@ namespace finelc{
             }
 
     };
-
 
     class Matrix{
 

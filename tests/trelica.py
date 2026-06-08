@@ -1,9 +1,9 @@
 import numpy as np
 import finelpy as fp
-from finelpy import TrussElementExercise
+from finelpy.element import IncompleteTrussElement
 import matplotlib.pyplot as plt
 
-class Trelica(TrussElementExercise):
+class Trelica(IncompleteTrussElement):
 
     def __init__(self, material):
         super().__init__(material)
@@ -54,32 +54,32 @@ inci = np.array([
 ], dtype=int)
 
 properties = {
-    fp.MaterialProperties.YOUNGS_MOD: 210e9,
-    fp.MaterialProperties.A: 1e-5
+    fp.material.MaterialProperties.YOUNGS_MOD: 210e9,
+    fp.material.MaterialProperties.A: 1e-5
 }
 
-mat = fp.create_material("Material").add_property(properties)
+mat = fp.material.create_material("Material").add_property(properties)
 
 el = Trelica(mat)
 
-mesh_gen = fp.FrameMesh(el,coord,inci)
+mesh_gen = fp.mesh.FrameMesh(el,coord,inci)
 mesh = mesh_gen.build()
 
 
-an_gen = fp.AnalysisBuilder(mesh)
-an_gen.add_boundary_condition(fp.DOFType.UX, mesh.find_node((0,0)),0)
-an_gen.add_boundary_condition(fp.DOFType.UY,mesh.find_node((0,0)),0)
-an_gen.add_boundary_condition(fp.DOFType.UY,mesh.find_node((12,0)),0)
+an_gen = fp.analysis.AnalysisBuilder(mesh)
+an_gen.add_boundary_condition(fp.analysis.DOFType.UX, mesh.find_node((0,0)),0)
+an_gen.add_boundary_condition(fp.analysis.DOFType.UY,mesh.find_node((0,0)),0)
+an_gen.add_boundary_condition(fp.analysis.DOFType.UY,mesh.find_node((12,0)),0)
 
-an_gen.add_force(fp.DOFType.UX,mesh.find_node((8,3)),400)
-an_gen.add_force(fp.DOFType.UY,mesh.find_node((8,0)),-1200)
+an_gen.add_force(fp.analysis.DOFType.UX,mesh.find_node((8,3)),400)
+an_gen.add_force(fp.analysis.DOFType.UY,mesh.find_node((8,0)),-1200)
 analysis = an_gen.build()
 
-solver_dir = fp.StaticSolver(analysis)
+solver_dir = fp.solver.StaticSolver(analysis)
 res = solver_dir.solve()
 
 
-tensao = res.element_mean(fp.ResultData.SIGMA_XX,1)
+tensao = res.element_mean(fp.results.ResultData.SIGMA_XX,1)
 
 fig,ax = mesh.plot_lines(values=tensao,show_colorbar=True,colormap='coolwarm')
 

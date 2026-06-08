@@ -1,6 +1,8 @@
 #include <finelc/matrix.h>
 #include <finelc/enumerations.h>
 
+#include <finelc/mesh/mesh.h>
+
 #include <finelc/analysis/analysis.h>
 #include <finelc/solver/solver.h>
 #include <finelc/result/result.h>
@@ -67,11 +69,17 @@ void bind_solver(py::module_& handle){
         .value("SIGMA_XZ", ResultData::SIGMA_XZ, R"pbdoc(Shear stress XZ)pbdoc")
         .value("SIGMA_YZ", ResultData::SIGMA_YZ, R"pbdoc(Shear stress YZ)pbdoc")
 
-        .value("SIGMA_VONMISES", ResultData::SIGMA_VONMISES, R"pbdoc(Equivalent von Mises stress)pbdoc")
+        .value("SIGMA_VONMISES", ResultData::SIGMA_VONMISES, R"pbdoc(Equivalent von Mises stress.)pbdoc")
 
-        .value("NX", ResultData::NX, R"pbdoc(Normal force)pbdoc")
-        .value("VY", ResultData::VY, R"pbdoc(Shear force)pbdoc")
-        .value("MZ", ResultData::MZ, R"pbdoc(Bending moment)pbdoc")
+        .value("NX", ResultData::NX, R"pbdoc(Normal force.)pbdoc")
+        .value("VY", ResultData::VY, R"pbdoc(Shear force.)pbdoc")
+        .value("MZ", ResultData::MZ, R"pbdoc(Bending moment.)pbdoc")
+
+        .value("T", ResultData::T, R"pbdoc(Temperature.)pbdoc")
+        .value("QX", ResultData::QX, R"pbdoc(Heat flux on X direction)pbdoc")
+        .value("QY", ResultData::QY, R"pbdoc(Heat flux on Y direction)pbdoc")
+        .value("QZ", ResultData::QZ, R"pbdoc(Heat flux on Z direction)pbdoc")
+        .value("ABS_Q", ResultData::ABS_Q, R"pbdoc(Absolute value of heat flux.)pbdoc")
         ;
     }
 
@@ -96,6 +104,8 @@ void bind_solver(py::module_& handle){
             Nodes from mesh.
             )pbdoc")
 
+        
+
         .def_property_readonly("elements",
             &StaticResult::elements,
             R"pbdoc(
@@ -106,6 +116,43 @@ void bind_solver(py::module_& handle){
             &StaticResult::get_analysis,
             R"pbdoc(
             Analysis object.
+            )pbdoc")
+
+        .def("displaced_nodes",
+            &StaticResult::displaced_nodes,
+            R"pbdoc(
+            Displaced nodes from mesh.
+            )pbdoc")
+
+        .def("ravel_displaced_elements",
+            [](const StaticResult &self, double scale=1) -> std::vector<std::vector<std::vector<double>>> {
+
+
+                const Mesh_ptr mesh = self.get_analysis()->get_mesh();
+
+                std::vector<std::vector<std::vector<double>>> element_ravel;
+                element_ravel.reserve(mesh->number_of_elements());
+
+                const VectorNodes& displaced_nodes = self.displaced_nodes(scale);
+
+                for(auto& el: mesh->get_elements()){
+
+                    const std::vector<int>& nodes = el->get_node_numbering();
+
+                    std::vector<std::vector<double>> el_poly;
+                    el_poly.reserve(nodes.size());
+
+                    for(int n_vert=0; n_vert < nodes.size(); n_vert++){
+                        el_poly.push_back({displaced_nodes[nodes[n_vert]]->x, displaced_nodes[nodes[n_vert]]->y});
+                    }
+                    element_ravel.emplace_back(std::move(el_poly));
+                }
+
+                return element_ravel;
+            },
+            R"pbdoc(
+            3D array containing the nodes of each element. Each row contains a matrix, with the coordinates of the nodes of each element.
+            Each row can be used by matplotlib to plot the geometry of each element.
             )pbdoc")
 
 

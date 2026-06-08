@@ -33,66 +33,131 @@ def plot_data1D(self,
 
     return ax, xdata
 
+@add_method(StaticResult)
+def plot_2D_grid(self,
+                id: ResultData,
+                internal_pts=1,
+                colormap='viridis',
+                show_edges: bool=False,
+                show_nodes: bool=False,
+                scale: float = 1):
+    
+    pdata, cdata = self.grid_data(id,internal_pts)
 
-if(not vtk_enabled()):
+    x = np.empty(pdata.shape[0])
+    y = np.empty(pdata.shape[0])
 
-    @add_method(StaticResult)
-    def plot_2D_grid(self,
-                    id: ResultData,
-                    internal_pts=10,
-                    show_edges: bool=False,
-                    show_nodes: bool=False):
+    if scale != 1:
+        cdata = np.sign(cdata) * np.abs(cdata)**scale
+
+    for i, pi in enumerate(pdata):
+        xi, yi, _ = pi
+        x[i] = xi
+        y[i] = yi
+
+    fig = plt.figure()
+    ax = fig.subplots()
+    sc = ax.scatter(x,y,c=cdata, cmap=colormap)
+
+    fig.colorbar(sc)
+
+    return fig, ax
+
+@add_method(StaticResult)
+def plot_deformed(self,
+                scale: float = 1,
+                show_original: bool=False,
+                show_edges = False,
+                fig = None,
+                ax = None):
+
+        from matplotlib.collections import PolyCollection
+
+        if (ax is None) or (fig is None):
+            fig, ax = plt.subplots()
+        else:
+            ax.clear()
+
+        if show_edges:
+            edge_color = "blue"
+        else:
+            edge_color = "face"
+
+        if show_original:
+            fig, ax = self.analysis.mesh.plot_mesh2D(fig=fig, ax=ax, alpha=0.3)
+
+
+        polygons = self.ravel_displaced_elements(scale)
+
+        pc = PolyCollection(polygons,facecolors="gray",edgecolors=edge_color)
         
-        import vtk
+        ax.add_collection(pc)
+        ax.autoscale()
+        ax.set_aspect("equal")
+        ax.set_axis_off()
 
-        pdata, cdata = self.grid_data(id,internal_pts)
-
-        vtk_points = vtk.vtkPoints()
-        vtk_values = vtk.vtkFloatArray()
-        vtk_values.SetName("Values")
+        return fig, ax
 
 
-        for i in range(pdata.shape[0]):
-            pt = pdata[i,:]
-            vtk_points.InsertNextPoint(pt)
-            vtk_values.InsertNextValue(cdata[i])
+# if(not vtk_enabled()):
 
-        # Create a vtkPolyData to store points
-        polydata = vtk.vtkPolyData()
-        polydata.SetPoints(vtk_points)
-        polydata.GetPointData().SetScalars(vtk_values)
+#     @add_method(StaticResult)
+#     def plot_2D_grid(self,
+#                     id: ResultData,
+#                     internal_pts=10,
+#                     show_edges: bool=False,
+#                     show_nodes: bool=False):
+        
+#         import vtk
 
-        # Create a glyph (sphere) for each point
-        sphere_source = vtk.vtkSphereSource()
-        sphere_source.SetRadius(0.1)  # Base radius
+#         pdata, cdata = self.grid_data(id,internal_pts)
 
-        glyph = vtk.vtkGlyph3D()
-        glyph.SetSourceConnection(sphere_source.GetOutputPort())
-        glyph.SetInputData(polydata)
-        glyph.SetColorModeToColorByScalar()  # Use scalar values for color
-        glyph.SetScaleModeToScaleByScalar()  # Optionally scale spheres by values
-        glyph.Update()
+#         vtk_points = vtk.vtkPoints()
+#         vtk_values = vtk.vtkFloatArray()
+#         vtk_values.SetName("Values")
 
-        # Mapper and Actor
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputConnection(glyph.GetOutputPort())
-        mapper.SetScalarRange(np.min(cdata), np.max(cdata))  # Map values to colors
 
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
+#         for i in range(pdata.shape[0]):
+#             pt = pdata[i,:]
+#             vtk_points.InsertNextPoint(pt)
+#             vtk_values.InsertNextValue(cdata[i])
 
-        # Renderer, RenderWindow, Interactor
-        renderer = vtk.vtkRenderer()
-        renderer.AddActor(actor)
-        renderer.SetBackground(0.2, 0.3, 0.4)  # Dark blue background
+#         # Create a vtkPolyData to store points
+#         polydata = vtk.vtkPolyData()
+#         polydata.SetPoints(vtk_points)
+#         polydata.GetPointData().SetScalars(vtk_values)
 
-        render_window = vtk.vtkRenderWindow()
-        render_window.AddRenderer(renderer)
-        render_window.SetSize(800, 600)
+#         # Create a glyph (sphere) for each point
+#         sphere_source = vtk.vtkSphereSource()
+#         sphere_source.SetRadius(0.1)  # Base radius
 
-        interactor = vtk.vtkRenderWindowInteractor()
-        interactor.SetRenderWindow(render_window)
+#         glyph = vtk.vtkGlyph3D()
+#         glyph.SetSourceConnection(sphere_source.GetOutputPort())
+#         glyph.SetInputData(polydata)
+#         glyph.SetColorModeToColorByScalar()  # Use scalar values for color
+#         glyph.SetScaleModeToScaleByScalar()  # Optionally scale spheres by values
+#         glyph.Update()
 
-        # Start visualization
-        render_window.Render()
-        interactor.Start()
+#         # Mapper and Actor
+#         mapper = vtk.vtkPolyDataMapper()
+#         mapper.SetInputConnection(glyph.GetOutputPort())
+#         mapper.SetScalarRange(np.min(cdata), np.max(cdata))  # Map values to colors
+
+#         actor = vtk.vtkActor()
+#         actor.SetMapper(mapper)
+
+#         # Renderer, RenderWindow, Interactor
+#         renderer = vtk.vtkRenderer()
+#         renderer.AddActor(actor)
+#         renderer.SetBackground(0.2, 0.3, 0.4)  # Dark blue background
+
+#         render_window = vtk.vtkRenderWindow()
+#         render_window.AddRenderer(renderer)
+#         render_window.SetSize(800, 600)
+
+#         interactor = vtk.vtkRenderWindowInteractor()
+#         interactor.SetRenderWindow(render_window)
+
+#         # Start visualization
+#         render_window.Render()
+#         interactor.Start()

@@ -74,28 +74,6 @@ void bind_analysis(py::module_& handle){
         "Analysis",
         R"pbdoc(Interface for Analysis)pbdoc")
 
-        .def_property_readonly("ID",
-        [](const Analysis& self) -> Matrix {
-
-            const IDMat& orig_ID = self.get_ID();
-
-            Matrix ID(orig_ID.rows,orig_ID.cols);
-
-            for(int i=0; i<orig_ID.rows; i++){
-                for(int j=0; j<orig_ID.cols; j++){
-                    ID(i,j) = orig_ID(i,j);
-                }
-            }
-            return ID;
-        },
-        R"pbdoc(Identification matrix. 
-        The ID matrix is a number_of_dofs x number_of_nodes matrix correlating each dof to the index of the global matrices and vectors.)pbdoc")
-
-        .def_property_readonly("mesh", 
-            &Analysis::get_mesh,
-            R"pbdoc(Mesh object in this analysis.)pbdoc"
-        )
-
         .def_property_readonly("num_bc_dofs", 
             &Analysis::bc_size,
             R"pbdoc(Number of dofs with boundary conditions)pbdoc"
@@ -111,15 +89,6 @@ void bind_analysis(py::module_& handle){
             R"pbdoc(Total number of dofs.)pbdoc"
         )
 
-        .def_property_readonly("interpolation_scheme", 
-            &Analysis::get_interpolation_name,
-            R"pbdoc(Interpolation Scheme adopted in the mesh update procedure.)pbdoc"
-        )
-
-        .def_property_readonly("rho", 
-            &Analysis::get_pseudo_density,
-            R"pbdoc(Pseudo-density of the current analysis.)pbdoc")
-        
         .def_property_readonly("free_dofs", 
             [](const Analysis& self) -> py::array_t<int> {
                 return py::cast(self.get_free_dofs());
@@ -132,9 +101,44 @@ void bind_analysis(py::module_& handle){
             },
             R"pbdoc(Index of degrees of freedom with boundary conditions.)pbdoc")
 
+        .def_property_readonly("mesh", 
+            &Analysis::get_mesh,
+            R"pbdoc(Mesh object in this analysis.)pbdoc"
+        )
+
+        .def_property_readonly("ID",
+            [](const Analysis& self) -> Matrix {
+
+                const IDMat& orig_ID = self.get_ID();
+
+                Matrix ID(orig_ID.rows,orig_ID.cols);
+
+                for(int i=0; i<orig_ID.rows; i++){
+                    for(int j=0; j<orig_ID.cols; j++){
+                        ID(i,j) = orig_ID(i,j);
+                    }
+                }
+                return ID;
+            },
+            R"pbdoc(Identification matrix. 
+            The ID matrix is a number_of_dofs x number_of_nodes matrix correlating each dof to the index of the global matrices and vectors.)pbdoc"
+        )
+        
+        .def_property_readonly("interpolation_scheme", 
+            &Analysis::get_interpolation_name,
+            R"pbdoc(Interpolation Scheme adopted in the mesh update procedure.)pbdoc"
+        )
+
+        .def_property_readonly("rho", 
+            &Analysis::get_pseudo_density,
+            R"pbdoc(Pseudo-density of the current analysis.)pbdoc"
+        )
+        
+        
         .def("destroy", 
             &Analysis::destroy,
-            R"pbdoc(Destructor of the Analysis object.)pbdoc")
+            R"pbdoc(Destructor of the Analysis object.)pbdoc"
+        )
 
         .def("set_interpolation", 
             &Analysis::set_interpolation,
@@ -220,6 +224,91 @@ void bind_analysis(py::module_& handle){
             fg: numpy.ndarray
                 Global force vector.
             )pbdoc")
+
+        .def("clear_forces", 
+            &Analysis::clear_forces,
+            R"pbdoc(
+            Clear all forces from analysis.
+            )pbdoc")
+
+        .def("add_force", 
+            py::overload_cast<DOFType, int, double>(&Analysis::add_force),
+            py::arg("dof"),
+            py::arg("node_number"),
+            py::arg("value"),
+            R"pbdoc(
+            Add Neumann boundary condition to a node.
+
+            Parameters
+            ------------
+            dof: DOFType
+                Degree of Freedom ID.
+            node_number: int
+                ID of node where it is applied.
+            value: float
+                Value of force.
+            )pbdoc")
+
+        .def("add_force", 
+            py::overload_cast<DOFType, std::vector<int>, double>(&Analysis::add_force),
+            py::arg("dof"),
+            py::arg("node_number"),
+            py::arg("value"),
+            R"pbdoc(
+            Add same Neumann boundary condition to multiple dofs.
+
+            Parameters
+            ------------
+            dof: DOFType
+                Degree of Freedom ID.
+            node_number: numpy.array[int]
+                ID of nodes where it is applied.
+            value: float
+                Value of force.
+            )pbdoc")
+
+        .def("add_force", 
+            py::overload_cast<DOFType, IGeometry_ptr, double, int>(&Analysis::add_force),
+            py::arg("dof"),
+            py::arg("geometry"),
+            py::arg("value"),
+            py::arg("integration_points")=10,
+            R"pbdoc(
+            Add uniform Neumann boundary condition to a geometry.
+
+            Parameters
+            ------------
+            dof: DOFType
+                Degree of Freedom ID.
+            geometry: geometry.IGeometry
+                Location where boundary condition is applied.
+            value: float
+                Value of uniform force.
+            integration_points: int, optional (default=10)
+                Number of integration points to be used to integrate the force.
+            )pbdoc")
+
+        .def("add_force", 
+            py::overload_cast<DOFType, IGeometry_ptr, Evalfn, int>(&Analysis::add_force),
+            py::arg("dof_type"),
+            py::arg("domain"),
+            py::arg("function"),
+            py::arg("number_of_integration")=10,
+            R"pbdoc(
+            Add general Neumann boundary condition to a geometry.
+
+            Parameters
+            ------------
+            dof: DOFType
+                Degree of Freedom ID.
+            geometry: geometry.IGeometry
+                Location where boundary condition is applied.
+            function: function handle ( tuple[2,3] -> float )
+                Function that calculates the force with given coordinates.
+            integration_points: int, optional (default=10)
+                Number of integration points to be used to integrate the force.
+            )pbdoc")
+
         ;
     }
 

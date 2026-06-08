@@ -248,7 +248,7 @@ void bind_geometry(py::module_& handle){
         
         .def_property_readonly(
             "dimensions", 
-            &Rectangle::get_dimension,
+            &Rectangle::get_dims,
             R"pbdoc(
             Get dimensions.
 
@@ -383,7 +383,7 @@ void bind_geometry(py::module_& handle){
         
         .def_property_readonly(
             "dimensions", 
-            &Hexahedron::get_dimension,
+            &Hexahedron::get_dims,
             R"pbdoc(
             Get dimensions.
 

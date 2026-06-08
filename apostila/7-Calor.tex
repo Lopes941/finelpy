@@ -85,6 +85,15 @@
 
         \noindent no qual $\Gamma_2$ representa uma outra superfície do domínio. O vetor $\mathbf{n}$ é o vetor normal à superfície.
 
+        Finalmente, também podemos citar aqui uma terceira categoria de condições de contorno, não citada até agora, chamada condições de contorno de Robin. Este tipo de condição de contorno envolve tanto a função incógnita ($T\mathbf{x}$) e sua derivada ($\frac{\partial T}{\partial \mathbf{n}}$). No caso de condução de calor, esta é usada para representar o fenômeno de convecção:
+
+        \begin{equation}
+            q = k\frac{\partial T}{\partial \mathbf{n}} = h\left(T(\mathbf{x}) - T_\infty\right) \quad, x \in \Gamma_3 \subset \partial \Omega
+            \label{eq:conveccao}
+        \end{equation}
+
+        \noindent no qual $\Gamma_3$ é uma terceira superfície, sujeita à convecção. A variável $h$ é o coeficiente de convecção e $T_\infty$ é a temperatura do fluido externo.
+
         A condição de contorno mais comum é a de \textbf{superfície adiabática}, ou seja, na qual não há perda de calor para o ambiente. Neste caso, na condição de contorno de Neumann apresentada acima temos $q_0 = 0$.
 
     \subsection{Forma fraca e aproximação da solução}
@@ -268,7 +277,7 @@
 
         \begin{equation}
             \int_{\Omega_e} \mathbf{B}^T \mathbf{D} \mathbf{B} dA \; \mathbf{a}_e = 
-            \int_{\Gamma_e} \mathbf{N}^T \left(\mathbf{q} \cdot \mathbf{n}\right) d\Gamma +
+            -\int_{\Gamma_e} \mathbf{N}^T \left(\mathbf{q} \cdot \mathbf{n}\right) d\Gamma +
             \int_{\Omega_e} \mathbf{N}^T p(x,y) dA
             \label{eq:calor_eq_elemento}
         \end{equation}
@@ -292,6 +301,37 @@
             \mathbf{q}(\bar{x},\bar{y}) = - k \nabla T^h = - \mathbf{D} \mathbf{B} \mathbf{a}_e
             \label{eq:fluxo_reconstruido}
         \end{equation}
+
+        \subsubsection*{Aplicação da condição de contorno de convecção}
+
+        As condições de contorno de Dirichlet e de Neumann são aplicadas, neste caso, de forma similar aos casos anteriores. A primeira entra ``cortando'' linhas e colunas da matriz de rigidez (e somando um termo no vetor de forças caso esta seja não nula); a segunda aparece no vetor de força. No problema de condução de calor, aparece uma terceira condição de contorno, a de Robin (Eq. \eqref{eq:conveccao}).
+
+        Considere um elemento no qual não há geração de calor ou condições de Neumann para simplificar as expressões, sem perda de generalidade. Este é representado por:
+
+        \begin{equation}
+            \int_{\Omega_e} \mathbf{B}^T \mathbf{D} \mathbf{B} dA \; \mathbf{a}_e = 
+            -\int_{\Gamma_e} \mathbf{N}^T \left(\mathbf{q} \cdot \mathbf{n}\right) d\Gamma
+        \end{equation}
+
+        Podemos também escrever a convecção como:
+
+        \begin{equation}
+            q = \left(\mathbf{q} \cdot \mathbf{n}\right) = h\left(T(\mathbf{x}) - T_\infty\right) = h \left(\mathbf{N} \mathbf{a}_e - T_\infty\right)
+        \end{equation}
+
+        Substituindo uma expressão na outra:
+
+        \begin{equation}
+            \int_{\Omega_e} \mathbf{B}^T \mathbf{D} \mathbf{B} dA \; \mathbf{a}_e = 
+            -\int_{\Gamma_e} \mathbf{N}^T h \left(\mathbf{N} \mathbf{a}_e - T_\infty\right) d\Gamma
+        \end{equation}
+
+        \begin{equation}
+            \left[\int_{\Omega_e} \mathbf{B}^T \mathbf{D} \mathbf{B} dA +  \int_{\Gamma_e} \mathbf{N}^T  h \mathbf{N} d\Gamma_3\right] \; \mathbf{a}_e = 
+            \int_{\Gamma_e} \mathbf{N}^T  h T_\infty  d\Gamma_3
+        \end{equation}
+
+        Portanto, a convecção aparece por meio de dois termos: um a direita, que compõe o vetor de forças, e um a esquerda, que compõe a matriz de rigidez.
 
 
     \subsection{Elemento triangular regular}

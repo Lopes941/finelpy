@@ -49,6 +49,13 @@ namespace finelc{
         return Vector();
     }
 
+    Vector IElementPhysics::get_heat_flux( const Vector& loc, 
+                                                const Vector& ue, 
+                                                const Matrix& dNdx,
+                                                const Matrix& D)const{
+        error_message("get_heat_flux()");
+        return Vector();
+    }
 
 
 } // namespace finelc

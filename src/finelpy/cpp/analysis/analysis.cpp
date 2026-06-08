@@ -30,6 +30,123 @@ namespace finelc{
 
     }
 
+
+    std::vector<int> get_mesh_nodes_in_geometry(const Mesh_ptr mesh, const IGeometry_ptr geo){
+
+        const VectorNodes& mesh_nodes = mesh->get_nodes();
+
+        std::vector<int> nodes;
+        for(int nd=0; nd<mesh_nodes.size(); nd++){
+            if(geo->is_inside(*mesh_nodes[nd])){
+                nodes.emplace_back(nd);
+            }
+        }
+        return nodes;
+
+    }
+
+
+    // ================================================================
+    // Force addition functions
+    // =================================================================
+
+
+    void create_force(
+        std::vector<Force>& forces, 
+        DOFType dof, 
+        int node_number, 
+        double value){
+
+        forces.push_back(Force(dof,node_number,value));
+    }
+
+    void create_force(
+        std::vector<Force>& forces, 
+        DOFType dof, 
+        std::vector<int> nodes, 
+        double value){
+
+        for(auto& node_number : nodes){
+            forces.push_back(Force(dof,node_number,value));
+        }
+    }
+
+    void create_force(
+        std::vector<Force>& forces, 
+        const Mesh_ptr mesh,
+        DOFType dof, 
+        IGeometry_ptr geometry, 
+        double value, 
+        int integration_points){
+
+        Force force(dof,geometry,value,integration_points);
+        force.get_elements_from_geometry(mesh);
+        forces.push_back(force);
+
+    }
+
+    void create_force(
+        std::vector<Force>& forces, 
+        const Mesh_ptr mesh,
+        DOFType dof, 
+        IGeometry_ptr geometry, 
+        Evalfn func, 
+        int integration_points){
+
+        Force force(dof,geometry,func,integration_points);
+        force.get_elements_from_geometry(mesh);
+        forces.push_back(force);
+        
+    }
+
+
+    // ================================================================
+    // Class: Force
+    // Manages the forces, integrating them in elements
+    // =================================================================
+
+
+    std::vector<int> Force::nodes_from_mesh(const Mesh_ptr mesh){
+        return get_mesh_nodes_in_geometry(mesh, domain);
+    }
+
+    void Force::get_elements_from_geometry(const Mesh_ptr mesh){
+                
+        std::vector<int> force_nodes = nodes_from_mesh(mesh);
+        nodes_or_elements.clear();
+
+        for(int el_number=0; el_number<mesh->number_of_elements(); el_number++){
+            const IElement_ptr el = mesh->get_element(el_number);
+            const std::vector<int>& el_nodes = el->get_node_numbering();
+            for(const auto& node: el_nodes){
+                if(std::find(force_nodes.begin(), force_nodes.end(), node) != force_nodes.end()){
+                    nodes_or_elements.emplace_back(el_number);
+                    break;
+                }
+            }
+        }
+    }
+
+    double Force::get_value_at(const Point& p)const{
+        if(force_type == ForceType::Nodal || force_type == ForceType::Constant){
+            return std::get<double>(value);
+        }else{
+            if(domain->is_inside(p)){
+                return std::get<Evalfn>(value)(p);
+            }else{
+                return 0;
+            }
+            
+        }
+    }
+
+
+    // ================================================================
+    // Class: Analysis
+    // Manages the force, boundary conditions and degrees of freedom.
+    // =================================================================
+
+
     Analysis::Analysis( Mesh_ptr mesh_,
                         IDMat ID_,
                         std::vector<BoundaryCondition> bcs_,
@@ -213,7 +330,8 @@ namespace finelc{
                     const std::vector<int> node_numbering = el->get_node_numbering();
 
                     std::vector<PointWeight> gauss_pts = el->integration_pair(
-                        force.get_integration_points());
+                        force.get_integration_points(),
+                        force.get_dimension());
 
 
                     int size = el->number_of_nodes()*el->dofs_per_node();
@@ -278,7 +396,6 @@ namespace finelc{
         return Eigen_Matrix_from_triplets(*Mg_data);
     }
 
-
     const Vector& Analysis::fg(){
 
         if(!fg_data){
@@ -291,21 +408,6 @@ namespace finelc{
 
     }
 
-    std::vector<int> Analysis::get_free_dofs()const{
-
-        std::vector<int> free_dofs;
-        free_dofs.reserve(num_free_dofs);
-
-        int k=0;
-        for(auto& val: ID){
-            if(val>=0){
-                free_dofs.emplace_back(k);
-            }
-            k++;
-        }
-        return free_dofs;
-    }
-
     void Analysis::set_interpolation(InterpolationScheme name){
         interp = create_interpolation(name);
         if(interp->name()==InterpolationScheme::NONE){
@@ -316,12 +418,43 @@ namespace finelc{
         }
     }
 
-    void Analysis::update_interpolation(
-                InterpolationParameters identifier, 
-                const double value){
+    void Analysis::update_interpolation(InterpolationParameters identifier, const double value){
         interp->update_property(identifier,value);
     }
 
+    void Analysis::update_pseudo_density(double new_rho){
+        if(!rho){throw std::runtime_error("Pseudo-density vector not initialized.");}
+        *rho = Vector::Constant(mesh->number_of_elements(),new_rho);
+        Kg_data = nullptr;
+        Mg_data = nullptr;
+        fg_data = nullptr;
+    }
+
+    void Analysis::update_pseudo_density(const Vector& new_rho){
+        if(!rho){throw std::runtime_error("Pseudo-density vector not initialized.");}
+        *rho = new_rho;
+        Kg_data = nullptr;
+        Mg_data = nullptr;
+        fg_data = nullptr;
+    }
+
+    InterpolationScheme Analysis::get_interpolation_name()const{
+        return interp->name();
+    }
+
+    const Vector Analysis::get_pseudo_density()const{
+        if(!rho) 
+            return Vector::Ones(mesh->number_of_elements()); 
+        return *rho;
+    }
+
+    Vector Analysis::get_interpolation()const{
+        return interp->apply(get_pseudo_density());
+    }
+    
+    Vector Analysis::get_interpolation_derivative()const{
+        return interp->derivative(get_pseudo_density());
+    }
 
     Vector Analysis::get_element_ue(const Vector& U, int el_number)const{
 
@@ -366,7 +499,82 @@ namespace finelc{
         return ug;
     }
 
+    VectorNodes Analysis::displaced_nodes(const Vector& U, double scale)const{
 
+        bool has_x, has_y, has_z;
+        const std::vector<DOFType>& dofs = ID.dofs;
+
+        if(std::find(dofs.begin(), dofs.end(), DOFType::UX) != dofs.end()){
+            has_x = true;
+        }else{
+            has_x = false;
+        }
+
+        if(std::find(dofs.begin(), dofs.end(), DOFType::UY) != dofs.end()){
+            has_y = true;
+        }else{
+            has_y = false;
+        }
+
+        if(std::find(dofs.begin(), dofs.end(), DOFType::UZ) != dofs.end()){
+            has_z = true;
+        }else{
+            has_z = false;
+        }
+
+        VectorNodes nodes;
+        nodes.reserve(mesh->number_of_nodes());
+
+        for(size_t node=0; node<mesh->number_of_nodes();node++){
+
+            const Node_ptr mesh_node = mesh->get_node(node);
+
+            int dofs_x=0;
+            int dofs_y=0;
+            int dofs_z=0;
+
+            double u_x = mesh_node->x;
+            double u_y = mesh_node->y;
+            double u_z = mesh_node->z;
+            
+
+            if(has_x){
+                dofs_x = ID(DOFType::UX,node);
+                if(dofs_x>=0){
+                    u_x += U(dofs_x)*scale ;
+                }else{
+                    u_x += bcs[(-dofs_x-1)].value;
+                }
+            }
+
+
+            if(has_y){
+                dofs_y = ID(DOFType::UY,node);
+                if(dofs_y>=0){
+                    u_y += U(dofs_y)*scale;
+                }else{
+                    u_y += bcs[(-dofs_y-1)].value;
+                }
+            }
+
+
+            if(has_z){
+                dofs_z = ID(DOFType::UZ,node);
+                if(dofs_z>=0){
+                    u_z += U(dofs_z)*scale;
+                }else{
+                    u_z += bcs[(-dofs_z-1)].value;
+                }
+            }
+
+            Node_ptr nd = std::make_shared<Node>(u_x,u_y,u_z);
+            nodes.emplace_back(nd);
+
+        }
+        return nodes;
+
+
+    }
 
     int Analysis::bc_size()const{
         int num_bcs =0;
@@ -374,6 +582,53 @@ namespace finelc{
             num_bcs += bc.nodes.size();
         }
         return num_bcs;
+    }
+
+    int Analysis::get_size()const{
+        return num_free_dofs;
+    }
+
+    int Analysis::total_size()const{
+        return get_size() + bc_size();
+    }
+    
+    int Analysis::number_of_elements()const{
+        return mesh->number_of_elements();
+    }
+
+    IElement_ptr Analysis::get_element(int el_number)const{
+        return mesh->get_element(el_number);
+    }
+
+    Mesh_ptr Analysis::get_mesh()const{
+        return mesh;
+    }
+
+    const IDMat& Analysis::get_ID()const{
+        return ID;
+    }
+
+    const VectorNodes& Analysis::nodes()const{
+        return mesh->get_nodes();
+    }
+
+    const VectorElements& Analysis::elements()const{
+        return mesh->get_elements();
+    }
+
+    std::vector<int> Analysis::get_free_dofs()const{
+
+        std::vector<int> free_dofs;
+        free_dofs.reserve(num_free_dofs);
+
+        int k=0;
+        for(auto& val: ID){
+            if(val>=0){
+                free_dofs.emplace_back(k);
+            }
+            k++;
+        }
+        return free_dofs;
     }
 
     std::vector<int> Analysis::get_bc_dofs()const{
@@ -391,8 +646,36 @@ namespace finelc{
         return bc_dofs;
     }
 
-    
+    void Analysis::clear_forces(){
+        fg_data = nullptr;
+        forces.clear();
+    }
 
+    void Analysis::add_force(DOFType dof, int node_number, double value){
+        fg_data = nullptr;
+        create_force(forces,dof,node_number,value);
+    }
+
+    void Analysis::add_force(DOFType dof, std::vector<int> nodes, double value){
+        fg_data = nullptr;
+        create_force(forces,dof,nodes,value);
+    }
+
+    void Analysis::add_force(DOFType dof, IGeometry_ptr geometry, double value, int integration_points){
+        fg_data = nullptr;
+        create_force(forces,mesh,dof,geometry,value,integration_points);
+    }
+
+    void Analysis::add_force(DOFType dof, IGeometry_ptr geometry, Evalfn func, int integration_points){
+        fg_data = nullptr;
+        create_force(forces,mesh,dof,geometry,func,integration_points);        
+    }
+
+    // ================================================================
+    // Class: AnalysisBuilder
+    // Creates the AnalysisBuilder class.
+    // =================================================================
+    
     void AnalysisBuilder::get_degrees_of_freedom(){
 
         std::unordered_set<DOFType> seen;
@@ -446,34 +729,25 @@ namespace finelc{
     }
 
     void AnalysisBuilder::add_boundary_condition(DOFType dof, IGeometry_ptr geometry, double value){
-        std::vector<int> nodes = geometry->nodes();
+
+        std::vector<int> nodes = get_mesh_nodes_in_geometry(mesh, geometry);
         bc_vector.push_back(BoundaryCondition(dof,nodes,value));
     }
 
     void AnalysisBuilder::add_force(DOFType dof, int node_number, double value){
-        forces.push_back(Force(dof,node_number,value));
+        create_force(forces,dof,node_number,value);
     }
 
     void AnalysisBuilder::add_force(DOFType dof, std::vector<int> nodes, double value){
-        for(auto& node_number : nodes){
-            forces.push_back(Force(dof,node_number,value));
-        }
+        create_force(forces,dof,nodes,value);
     }
 
     void AnalysisBuilder::add_force(DOFType dof, IGeometry_ptr geometry, double value, int integration_points){
-
-        Force force(dof,geometry,value,integration_points);
-        force.get_elements_from_geometry(mesh);
-        forces.push_back(force);
-
+        create_force(forces,mesh,dof,geometry,value,integration_points);
     }
 
     void AnalysisBuilder::add_force(DOFType dof, IGeometry_ptr geometry, Evalfn func, int integration_points){
-
-        Force force(dof,geometry,func,integration_points);
-        force.get_elements_from_geometry(mesh);
-        forces.push_back(force);
-        
+        create_force(forces,mesh,dof,geometry,func,integration_points);        
     }
 
 

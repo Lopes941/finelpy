@@ -94,6 +94,34 @@
 }
 
 
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{dkorange}{rgb}{0.97,0.45,0.25}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{mauve},
+  commentstyle=\color{gray},
+  stringstyle=\color{dkgreen},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  classoffset=1,        
+  keywordstyle=\color{dkorange},
+  classoffset=0,          
+}
+
 \DeclareMathOperator*{\assembly}{\scalerel*{\mathsf{A}}{\sum}}
 
 \newcommand{\sing}[3]{{\left\langle #1-#2\right\rangle^{#3}}}

@@ -30,6 +30,29 @@ namespace finelc{
             StaticResult solve();
     };
 
+    // class EigenvalueSolver{
+
+    //     private:
+
+    //         Analysis_ptr analysis;
+    //         std::unique_ptr<SolverType> type;
+    //         std::unique_ptr<Solver> solver=nullptr;
+
+    //         void default_solver();
+
+    //     public:
+        
+    //         EigenvalueSolver(Analysis_ptr anal): 
+    //             analysis(anal) {}
+    //         EigenvalueSolver(Analysis_ptr anal, SolverType type_): 
+    //             analysis(anal), type(std::make_unique<SolverType>(type_)) {}
+    //         ~EigenvalueSolver()=default;
+
+    //         StaticResult solve();
+        
+
+    // };
+
     
     
 } // namespace finelc

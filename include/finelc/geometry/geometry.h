@@ -173,7 +173,9 @@ namespace finelc{
                 iterator = std::move(ite);
             }
 
-            virtual bool is_inside(const Point& p)const=0;
+            virtual bool is_inside(const Point& p, double tol=1e-7)const=0;
+
+            virtual int get_dimension()const=0;
 
             int number_of_nodes()const{
                 if(!iterator){
@@ -265,9 +267,12 @@ namespace finelc{
 
             }
 
-            inline bool is_inside(const Point& p)const override{
-                double tolerance = 1e-7;
-                return distance(p) <= tolerance;
+            inline bool is_inside(const Point& p, double tol=1e-7)const override{
+                return distance(p) <= tol;
+            }
+
+            int get_dimension()const override{
+                return 1;
             }
 
     };
@@ -381,7 +386,11 @@ namespace finelc{
             inline std::shared_ptr<std::vector<Line>> get_lines() const {return lines ? lines : nullptr;}
 
 
-            bool is_inside(const Point& p)const override;
+            bool is_inside(const Point& p, double tol=1e-7)const override;
+
+            int get_dimension()const override{
+                return 2;
+            }
 
 
             inline PlaneEquation get_equation()const{
@@ -485,14 +494,14 @@ namespace finelc{
                 create_rectangle();
             }
 
-            inline bool is_inside(const Point& p)const override{
-                return p.x >= origin.x &&
-                        p.x <= origin.x + dimension.x &&
-                        p.y >= origin.y &&
-                        p.y <= origin.y + dimension.y;
+            inline bool is_inside(const Point& p, double tol=1e-7)const override{
+                return p.x >= origin.x -tol &&
+                        p.x <= origin.x + dimension.x +tol &&
+                        p.y >= origin.y -tol &&
+                        p.y <= origin.y + dimension.y +tol;
             }
 
-            inline Point get_dimension() const {return dimension;}
+            inline Point get_dims() const {return dimension;}
             inline Point get_origin() const {return origin;}
 
             inline std::shared_ptr<Line> lower_side() const {
@@ -596,7 +605,11 @@ namespace finelc{
             inline std::shared_ptr<std::vector<IArea>> get_faces() const {return faces ? faces : nullptr;}
 
 
-            bool is_inside(const Point& p)const override;
+            bool is_inside(const Point& p, double tol=1e-7)const override;
+
+            int get_dimension()const override{
+                return 3;
+            }
             
     };
 
@@ -665,16 +678,16 @@ namespace finelc{
                 create_hex();
             }
 
-            inline bool is_inside(const Point& p)const override{
-                return p.x >= origin.x &&
-                        p.x <= origin.x + dimension.x &&
-                        p.y >= origin.y &&
-                        p.y <= origin.y + dimension.y &&
-                        p.z >= origin.z &&
-                        p.z <= origin.z + dimension.z;
+            inline bool is_inside(const Point& p, double tol=1e-7)const override{
+                return p.x >= origin.x -tol &&
+                        p.x <= origin.x + dimension.x +tol &&
+                        p.y >= origin.y -tol &&
+                        p.y <= origin.y + dimension.y +tol &&
+                        p.z >= origin.z -tol &&
+                        p.z <= origin.z + dimension.z +tol;
             }
 
-            inline Point get_dimension() const {return dimension;}
+            inline Point get_dims() const {return dimension;}
             inline Point get_origin() const {return origin;}
 
             inline std::shared_ptr<IArea> lower_face() const {

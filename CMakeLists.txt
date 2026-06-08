@@ -75,6 +75,31 @@ endif()
 
 target_link_libraries(core PRIVATE Eigen3::Eigen)
 
+# ================================
+# Spectra
+# ================================
+
+find_package(Spectra QUIET)
+
+if(NOT Spectra_FOUND)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        spectra
+        GIT_REPOSITORY https://github.com/yixuan/spectra.git
+        GIT_TAG v1.0.1
+    )
+
+    FetchContent_MakeAvailable(spectra)
+
+    # Spectra defines target "Spectra"
+    if(NOT TARGET Spectra::Spectra)
+        add_library(Spectra::Spectra ALIAS Spectra)
+    endif()
+endif()
+
+target_link_libraries(core PRIVATE Spectra::Spectra)
+
 
 # ================================
 # Accelerate

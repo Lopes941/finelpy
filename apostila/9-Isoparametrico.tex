@@ -3,6 +3,7 @@
 
 \cleardoublepage
 \section{Elemento isoparamétrico}
+\label{sec:isoparametrico}
 
     \subsection{Elemento quadrangular isoparamétrico}
 
@@ -76,20 +77,21 @@
         As derivadas, em relação às coordenadas locais, são:
 
         \begin{equation*}
-            \frac{\partial x}{\partial \xi} = \left(x_1-x_2+x_3-x_4\right)\eta + \left(-x_1+x_2+x_3-x_4\right)
+            \frac{\partial x}{\partial \xi} = \frac{1}{4}\left(x_1-x_2+x_3-x_4\right)\eta + \frac{1}{4}\left(-x_1+x_2+x_3-x_4\right)
         \end{equation*}
 
         \begin{equation*}
-            \frac{\partial x}{\partial \eta} = \left(x_1-x_2+x_3-x_4\right)\xi + \left(-x_1-x_2+x_3+x_4\right)
+            \frac{\partial x}{\partial \eta} = \frac{1}{4}\left(x_1-x_2+x_3-x_4\right)\xi + \frac{1}{4}\left(-x_1-x_2+x_3+x_4\right)
         \end{equation*}
 
         \begin{equation*}
-            \frac{\partial y}{\partial \xi} = \left(y_1-y_2+y_3-y_4\right)\eta + \left(-y_1+y_2+y_3-y_4\right)
+            \frac{\partial y}{\partial \xi} = \frac{1}{4}\left(y_1-y_2+y_3-y_4\right)\eta + \frac{1}{4}\left(-y_1+y_2+y_3-y_4\right)
         \end{equation*}
 
         \begin{equation*}
-            \frac{\partial y}{\partial \eta} = \left(y_1-y_2+y_3-y_4\right)\xi + \left(-y_1-y_2+y_3+y_4\right)
+            \frac{\partial y}{\partial \eta} = \frac{1}{4}\left(y_1-y_2+y_3-y_4\right)\xi + \frac{1}{4}\left(-y_1-y_2+y_3+y_4\right)
         \end{equation*}
+
 
         Com isso, temos a matriz Jacobiana:
 
@@ -102,6 +104,9 @@
         \end{equation}
 
         \noindent note que, neste caso, o Jacobiano não necessariamente será constante. Consequentemente, seu determinante também não será constante.
+
+        Embora o Jacobiano não seja constante no caso geral, ele será no caso particular de elemento retangular (em coordenadas globais). O Apêndice \ref{app:el_retangular} mostra a formulação para este caso particular de elemento.
+
 
         As derivadas das funções de forma em relação às coordenadas globais são obtidas como na Seção \ref{sec:elemento_triangular}:
 

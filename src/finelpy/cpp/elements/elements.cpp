@@ -13,9 +13,11 @@
 #include <finelc/element_physics/element_physics.h>
 #include <finelc/element_physics/plane.h>
 #include <finelc/element_physics/solid.h>
+#include <finelc/element_physics/thermal.h>
 
 #include <finelc/material/constitutive.h>
 #include <finelc/material/elastic.h>
+#include <finelc/material/thermal.h>
 
 #include <cmath>
 
@@ -164,7 +166,7 @@ namespace finelc{
         return num_int_pts;
     }
 
-    std::vector<PointWeight> IElement::integration_pair(int number_points)const{
+    std::vector<PointWeight> IElement::integration_pair(int number_points, int function_dimension)const{
 
         if(number_points==0){
             number_points = get_number_integration_points();
@@ -173,7 +175,8 @@ namespace finelc{
         return get_gauss_points(
             get_integration_domain(),
             number_points,
-            number_of_dimensions());
+            number_of_dimensions(),
+            function_dimension);
         
     }
 
@@ -347,7 +350,15 @@ namespace finelc{
             case ModelType::SOLID_STRUCTURAL:
                 return std::make_shared<ElementPhysicsAdapter<SolidStructural>>();
                 break;
-        
+            case ModelType::THERMAL_CONDUCTION_1D:
+                return std::make_shared<ElementPhysicsAdapter<Thermal1DConduction>>();
+                break;
+            case ModelType::THERMAL_CONDUCTION_2D:
+                return std::make_shared<ElementPhysicsAdapter<Thermal2DConduction>>();
+                break;
+            case ModelType::THERMAL_CONDUCTION_3D:
+                return std::make_shared<ElementPhysicsAdapter<Thermal3DConduction>>();
+                break;
         }
 
         throw std::runtime_error("Invalid element physics");
@@ -367,6 +378,18 @@ namespace finelc{
 
             case ConstitutiveType::SOLID_LINEAR_ELASTIC:
                 return std::make_shared<ConstitutiveModelAdapter<LinearElastic>>(mat);
+                break;
+
+            case ConstitutiveType::THERMAL_CONDUCTION_1D:
+                return std::make_shared<ConstitutiveModelAdapter<Thermal1D>>(mat);
+                break;
+
+            case ConstitutiveType::THERMAL_CONDUCTION_2D:
+                return std::make_shared<ConstitutiveModelAdapter<Thermal2D>>(mat);
+                break;
+
+            case ConstitutiveType::THERMAL_CONDUCTION_3D:
+                return std::make_shared<ConstitutiveModelAdapter<Thermal3D>>(mat);
                 break;
 
         }

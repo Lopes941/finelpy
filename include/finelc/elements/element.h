@@ -470,7 +470,7 @@ namespace finelc{
              * 
              * @return std::vector<PointWeight> A vector of PointWeight structures containing the integration points and their corresponding weights.
              */
-            std::vector<PointWeight> integration_pair(int number_points=0)const;
+            std::vector<PointWeight> integration_pair(int number_points=0, int function_dimension=0)const;
 
             /**
              * @brief Get the integration points for the element.
@@ -624,6 +624,24 @@ namespace finelc{
              * @return Vector The bending moment in Z direction at the specified location.
              */
             virtual Vector get_MZ(const Vector& loc, const Vector& ue)const=0;
+
+
+            /**
+             * @brief Check if the element supports heat flux computation..
+             * 
+             * @return true if the element heat flux, false otherwise.
+             */
+            virtual bool supports_heat_flux()const=0;
+
+            /**
+             * @brief Get the heat flux  at a given location.
+             * 
+             * @param loc The local coordinates where the bending moment is to be computed.
+             * @param ue The vector of nodal values.
+             * 
+             * @return Vector The bending moment in Z direction at the specified location.
+             */
+            virtual Vector get_heat_flux(const Vector& loc, const Vector& ue)const=0;
 
             
 
@@ -1053,6 +1071,25 @@ namespace finelc{
                 return physics->get_MZ(loc,ue,dNdx(loc,ue),D(ue,loc));
             }
 
+
+            /**
+             * @brief Check if the element supports heat flux computation..
+             * 
+             * @return true if the element heat flux, false otherwise.
+             */
+            bool supports_heat_flux()const override{return physics->supports_heat_flux();}
+
+            /**
+             * @brief Get the heat flux  at a given location.
+             * 
+             * @param loc The local coordinates where the bending moment is to be computed.
+             * @param ue The vector of nodal values.
+             * 
+             * @return Vector The bending moment in Z direction at the specified location.
+             */
+            Vector get_heat_flux(const Vector& loc, const Vector& ue)const override{
+                return physics->get_heat_flux(loc,ue,dNdx(loc,ue),D(ue,loc));
+            }
             
     };
 

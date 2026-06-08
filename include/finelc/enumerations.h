@@ -126,7 +126,11 @@ namespace finelc{
         NX,
         VY,
         MZ,
-        
+        T,
+        QX,
+        QY,
+        QZ,
+        ABS_Q,
     };
 
 } // namespace finelc

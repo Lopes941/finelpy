@@ -36,10 +36,10 @@ namespace finelc{
         }
 
         if(element->get_shape() != ShapeType::HEX8){
-            throw std::runtime_error("Hexahedron Mesh builder only accepts QUAD4 and TRI3 elements.");
+            throw std::runtime_error("Hexahedron Mesh builder only accepts HEX8 elements.");
         }
 
-        const Point dimensions = hex->get_dimension();
+        const Point dimensions = hex->get_dims();
         Lx = dimensions.x;
         Ly = dimensions.y;
         Lz = dimensions.z;

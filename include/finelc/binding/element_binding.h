@@ -511,4 +511,21 @@ class ElementTrampoline: public IElement{
                 );
             }
 
+            bool supports_heat_flux()const override{
+                PYBIND11_OVERLOAD_PURE(
+                    bool,
+                    IElement,
+                    supports_heat_flux,
+                );
+            }
+
+            Vector get_heat_flux(const Vector& loc, const Vector& ue)const override{
+                PYBIND11_OVERLOAD_PURE(
+                    Vector,
+                    IElement,
+                    get_heat_flux,
+                    loc, ue
+                );
+            }
+
 };

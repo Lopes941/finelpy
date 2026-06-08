@@ -70,7 +70,8 @@ namespace finelc{
     std::vector<PointWeight> get_gauss_points(
                             IntegrationGeometry geometry,
                             int num_pts, 
-                            int dimensions);
+                            int dimensions,
+                            int function_dimension=0);
     
     /**
      * @brief Template function to get Gauss integration points and weights for specific geometry and dimension.
@@ -84,7 +85,7 @@ namespace finelc{
      *  the integration points and their corresponding weights.
      */
     template<IntegrationGeometry Geo, int dimension>
-    std::vector<PointWeight> get_gauss_pair(int order){
+    std::vector<PointWeight> get_gauss_pair(int order, int function_dimension){
         throw std::runtime_error("Invalid integration parameters");
     }
 
@@ -97,7 +98,7 @@ namespace finelc{
      *  the integration points and their corresponding weights.
      */
     template<>
-    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 1>(int num_pts){
+    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 1>(int num_pts, int _){
         return legendre_roots(num_pts);
     }
 
@@ -110,19 +111,45 @@ namespace finelc{
      *  the integration points and their corresponding weights.
      */
     template<>
-    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 2>(int num_pts){
+    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 2>(int num_pts, int function_dimension){
  
-        std::vector<PointWeight> p1 = legendre_roots(num_pts);
-        std::vector<PointWeight> p2 = p1;
-
         std::vector<PointWeight> p;
-        p.reserve(p1.size()*p2.size());
+        std::vector<PointWeight> p1 = legendre_roots(num_pts);
+        switch (function_dimension){
 
-        for(auto& pi: p1){
-            for(auto& pj: p2){
-                p.emplace_back(convolve_points(pi,pj));
-            }
+            case 1:
+                {
+                std::vector<PointWeight> p2 = {
+                    PointWeight(-1, 1.),
+                    PointWeight(1, 1.)
+                };
+
+                p.reserve(p1.size()*4);
+                for(auto& pi: p1){
+                    for(auto& pj: p2){
+                        p.emplace_back(convolve_points(pi,pj));
+                        p.emplace_back(convolve_points(pj,pi));
+                    }
+                }
+                }
+                break;
+            
+                
+            default:
+                {
+                    std::vector<PointWeight> p2 = p1;
+
+                    p.reserve(p1.size()*p2.size());
+
+                    for(auto& pi: p1){
+                        for(auto& pj: p2){
+                            p.emplace_back(convolve_points(pi,pj));
+                        }
+                    }
+                }
+                break;
         }
+
         return p;
     }
 
@@ -135,22 +162,77 @@ namespace finelc{
      *  the integration points and their corresponding weights.
      */
     template<>
-    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 3>(int num_pts){
+    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::REGULAR, 3>(int num_pts, int function_dimension){
 
-        std::vector<PointWeight> p1 = legendre_roots(num_pts);
-        std::vector<PointWeight> p2 = p1;
-        std::vector<PointWeight> p3 = p1;
 
         std::vector<PointWeight> p;
-        p.reserve(p1.size()*p2.size()*p3.size());
+        std::vector<PointWeight> p1 = legendre_roots(num_pts);
+        switch (function_dimension){
 
-        for(auto& pi: p1){
-            for(auto& pj: p2){
-                for(auto& pk: p3){
-                    p.emplace_back(convolve_points(pi,pj,pk));
+            case 1:
+                {
+                std::vector<PointWeight> p2 = {
+                    PointWeight(-1, 1.),
+                    PointWeight(1, 1.)
+                };
+                std::vector<PointWeight> p3 = p2;
+
+                p.reserve(p1.size()*12);
+                for(auto& pi: p1){
+                    for(auto& pj: p2){
+                        for(auto& pk: p3){
+                            p.emplace_back(convolve_points(pi,pj,pk));
+                            p.emplace_back(convolve_points(pj,pi,pk));
+                            p.emplace_back(convolve_points(pj,pk,pi));
+                        }
+                    }
                 }
-            }
+                }
+                break;
+
+            case 2:
+                {
+
+                std::vector<PointWeight> p2 = p1;
+                std::vector<PointWeight> p3 = {
+                    PointWeight(-1, 1.),
+                    PointWeight(1, 1.)
+                };
+                
+
+                p.reserve(p1.size()*6);
+                for(auto& pi: p1){
+                    for(auto& pj: p2){
+                        for(auto& pk: p3){
+                            p.emplace_back(convolve_points(pi,pj,pk));
+                            p.emplace_back(convolve_points(pi,pk,pj));
+                            p.emplace_back(convolve_points(pk,pi,pj));
+                        }
+                    }
+                }
+                }
+                break;
+            
+                
+            default:
+                {
+                    std::vector<PointWeight> p2 = p1;
+                    std::vector<PointWeight> p3 = p1;
+
+                    std::vector<PointWeight> p;
+                    p.reserve(p1.size()*p2.size()*p3.size());
+
+                    for(auto& pi: p1){
+                        for(auto& pj: p2){
+                            for(auto& pk: p3){
+                                p.emplace_back(convolve_points(pi,pj,pk));
+                            }
+                        }
+                    }
+                }
+                break;
         }
+
         return p;
     }
 
@@ -170,7 +252,7 @@ namespace finelc{
      *  the integration points and their corresponding weights.
      */
     template<>
-    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::TRIANGLE, 2>(int num_pts){
+    inline std::vector<PointWeight> get_gauss_pair<IntegrationGeometry::TRIANGLE, 2>(int num_pts, int function_dimension){
 
         // TODO
         std::vector<PointWeight> p;

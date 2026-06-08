@@ -7,24 +7,12 @@ from time import perf_counter as time
 
 from matplotlib import pyplot as plt
 
-class MyEl(fp.element.pyElement):
-
-    def __init__(self, material):
-        super().__init__(material)
-
-    def get_shape(self) -> ShapeType:
-        return fp.element.ShapeType.QUAD4
-    
-    def dofs(self):
-        return [fp.analysis.DOFType.UX,fp.analysis.DOFType.UY]
-
-    
 
 # Creating Geometry
 Lx = 80
 Ly = 50
-nx = 8
-ny = 5
+nx = 160*5
+ny = 50
 t = 1
 
 O = (0,0,0)
@@ -40,13 +28,11 @@ properties = {
 
 steel = fp.material.create_material("Steel").add_property(properties)
 
-# el = fp.element.create_element(
-#         fp.element.ShapeType.TRI3, 
-#         fp.element.ModelType.PLANE_STRUCTURAL,
-#         fp.element.ConstitutiveType.PLANE_STRESS, 
-#         steel)
-
-el = MyEl(steel)
+el = fp.element.create_element(
+        fp.element.ShapeType.TRI3, 
+        fp.element.ModelType.PLANE_STRUCTURAL,
+        fp.material.ConstitutiveType.PLANE_STRESS, 
+        steel)
 
 mesh_gen = fp.mesh.RectangularMesh(Rec, el)
 mesh_gen.set_grid(nx,ny)
@@ -56,41 +42,21 @@ an_gen = fp.analysis.AnalysisBuilder(mesh)
 an_gen.add_boundary_condition(fp.analysis.DOFType.UX,Rec.left_side,0)
 an_gen.add_boundary_condition(fp.analysis.DOFType.UY,Rec.left_side,0)
 
-forc_node = mesh.find_node((80,25))
-an_gen.add_force(fp.analysis.DOFType.UY,forc_node,-10)
+forc_node = mesh.find_node((40,50))
+an_gen.add_force(fp.analysis.DOFType.UY,forc_node,-1e3)
 analysis = an_gen.build()
 
-
-analysis.set_interpolation(fp.analysis.InterpolationScheme.SIMP)
-analysis.update_interpolation(fp.analysis.InterpolationParameters.X_MIN,1e-3)
-analysis.update_interpolation(fp.analysis.InterpolationParameters.P_EXPONENT,3)
-
-el_center = mesh.centers
-rho = np.ones(mesh.number_of_elements)*1e-3
-for iel in range(mesh.number_of_elements):
-    if (el_center[iel,1] < 40. and el_center[iel,1] > 10.) or el_center[iel,0] < 10.:
-        rho[iel] = 1
-
-analysis.update_pseudo_density(rho)
-
 solver_dir = fp.solver.StaticSolver(analysis, fp.solver.SolverType.Direct)
-
-print(f"Elements = {mesh.number_of_elements: ,}")
-print(f"DOFs     = {analysis.num_free_dofs: ,}")
-
-ti = time()
 res = solver_dir.solve()
-t_eigen = time()-ti
-print(f"Direct time: {t_eigen} s")
 
-r = (Lx,25.5)
-print(f"displacement at {r} = {res.get_value(fp.results.ResultData.UY,r):0.2e}")
+p, val = res.get_max(fp.results.ResultData.SIGMA_VONMISES,internal_pts=10)
+print(f"Maximum Von mises at {p}, with value of {val:0.2e}")
 
-p, val = res.get_min(fp.results.ResultData.UY,internal_pts=1)
-print(f"Minimum displacement at {p}, with value of {val:0.2e}")
+p, val = res.get_max(fp.results.ResultData.SIGMA_XX,internal_pts=10)
+print(f"Maximum Sigma_x at {p}, with value of {val:0.2e}")
 
-sens = res.compliance_sensitivity()
-sens = np.log10(sens)
+
+res.plot_deformed(10e7,True)
 
 analysis.destroy()
 plt.show()

@@ -39,7 +39,7 @@ namespace finelc{
             throw std::runtime_error("Rectangle Mesh builder only accepts QUAD4 and TRI3 elements.");
         }
 
-        const Point dimensions = rectangle->get_dimension();
+        const Point dimensions = rectangle->get_dims();
         Lx = dimensions.x;
         Ly = dimensions.y;
 

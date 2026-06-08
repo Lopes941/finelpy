@@ -57,29 +57,32 @@ namespace finelc{
     PointWeight convolve_points(const PointWeight& p1, 
         const PointWeight& p2, 
         const PointWeight& p3){
+
             return PointWeight(
                 Point(p1.point.x,p2.point.x,p3.point.x), 
                 p1.weight*p2.weight*p3.weight);
+
         }
     
     
     std::vector<PointWeight> get_gauss_points(
         IntegrationGeometry geometry,
         int num_pts, 
-        int dimensions){
+        int dimensions,
+        int function_dimension){
 
 
         std::vector<PointWeight> pts;
 
         switch(geometry){
             case IntegrationGeometry::REGULAR:
-                if(dimensions==1) pts = get_gauss_pair<IntegrationGeometry::REGULAR,1>(num_pts);
-                if(dimensions==2) pts = get_gauss_pair<IntegrationGeometry::REGULAR,2>(num_pts);
-                if(dimensions==3) pts = get_gauss_pair<IntegrationGeometry::REGULAR,3>(num_pts);
+                if(dimensions==1) pts = get_gauss_pair<IntegrationGeometry::REGULAR,1>(num_pts,function_dimension);
+                if(dimensions==2) pts = get_gauss_pair<IntegrationGeometry::REGULAR,2>(num_pts,function_dimension);
+                if(dimensions==3) pts = get_gauss_pair<IntegrationGeometry::REGULAR,3>(num_pts,function_dimension);
                 break;
 
             case IntegrationGeometry::TRIANGLE:
-                if(dimensions==2) pts = get_gauss_pair<IntegrationGeometry::TRIANGLE,2>(num_pts);
+                if(dimensions==2) pts = get_gauss_pair<IntegrationGeometry::TRIANGLE,2>(num_pts,function_dimension);
                 break;
 
             default:
