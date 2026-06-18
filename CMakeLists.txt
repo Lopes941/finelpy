@@ -79,28 +79,31 @@ endif()
 target_link_libraries(core PRIVATE Eigen3::Eigen)
 
 # ================================
-# Spectra
+# Spectra (Header-only)
 # ================================
-
 find_package(Spectra QUIET)
-
 if(NOT Spectra_FOUND)
     include(FetchContent)
+    
+    # Force Spectra to bypass its internal find_package(Eigen3) call if we already have Eigen
+    if(TARGET Eigen3::Eigen OR TARGET eigen)
+        set(Eigen3_FOUND TRUE CACHE BOOL "" FORCE)
+        # Point to the FetchContent directory of eigen
+        set(EIGEN3_INCLUDE_DIR "${eigen_SOURCE_DIR}" CACHE PATH "" FORCE)
+    endif()
 
     FetchContent_Declare(
         spectra
         GIT_REPOSITORY https://github.com/yixuan/spectra.git
         GIT_TAG v1.0.1
     )
-
     FetchContent_MakeAvailable(spectra)
 
-    # Spectra defines target "Spectra"
     if(NOT TARGET Spectra::Spectra)
-        add_library(Spectra::Spectra ALIAS Spectra)
+        add_library(Spectra::Spectra INTERFACE IMPORTED)
+        target_include_directories(Spectra::Spectra INTERFACE ${spectra_SOURCE_DIR}/include)
     endif()
 endif()
-
 target_link_libraries(core PRIVATE Spectra::Spectra)
 
 

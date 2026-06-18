@@ -42,13 +42,12 @@ def plot_2D_grid(self,
                 show_nodes: bool=False,
                 scale: float = 1):
     
+    import matplotlib.colors as colors
+
     pdata, cdata = self.grid_data(id,internal_pts)
 
     x = np.empty(pdata.shape[0])
     y = np.empty(pdata.shape[0])
-
-    if scale != 1:
-        cdata = np.sign(cdata) * np.abs(cdata)**scale
 
     for i, pi in enumerate(pdata):
         xi, yi, _ = pi
@@ -57,8 +56,10 @@ def plot_2D_grid(self,
 
     fig = plt.figure()
     ax = fig.subplots()
-    sc = ax.scatter(x,y,c=cdata, cmap=colormap)
+    sc = ax.scatter(x,y,c=cdata, cmap=colormap, norm=colors.PowerNorm(gamma=scale))
 
+    ax.autoscale()
+    ax.set_aspect("equal")
     fig.colorbar(sc)
 
     return fig, ax

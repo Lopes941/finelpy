@@ -543,7 +543,7 @@ namespace finelc{
                 if(dofs_x>=0){
                     u_x += U(dofs_x)*scale ;
                 }else{
-                    u_x += bcs[(-dofs_x-1)].value;
+                    u_x += bcs[(-dofs_x-1)].value*scale;
                 }
             }
 
@@ -553,7 +553,7 @@ namespace finelc{
                 if(dofs_y>=0){
                     u_y += U(dofs_y)*scale;
                 }else{
-                    u_y += bcs[(-dofs_y-1)].value;
+                    u_y += bcs[(-dofs_y-1)].value*scale;
                 }
             }
 
@@ -563,7 +563,7 @@ namespace finelc{
                 if(dofs_z>=0){
                     u_z += U(dofs_z)*scale;
                 }else{
-                    u_z += bcs[(-dofs_z-1)].value;
+                    u_z += bcs[(-dofs_z-1)].value*scale;
                 }
             }
 
