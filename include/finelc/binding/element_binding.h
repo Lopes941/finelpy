@@ -235,7 +235,7 @@ class ElementTrampoline: public IElement{
             );
         }
 
-        Matrix J(OptionalVector loc) const override{
+        Matrix J(const Vector& loc) const override{
             PYBIND11_OVERLOAD_PURE(
                 Matrix,
                 IElement,
@@ -243,8 +243,9 @@ class ElementTrampoline: public IElement{
                 loc
             );
         }
+        
 
-        double detJ(OptionalVector loc) const override{
+        double detJ(const Vector& loc) const override{
             PYBIND11_OVERLOAD_PURE(
                 double,
                 IElement,
@@ -331,7 +332,7 @@ class ElementTrampoline: public IElement{
             );
         }
 
-        Matrix D(OptionalVector ue, OptionalVector loc) const override{
+        Matrix D(const Vector& ue, const Vector& loc) const override{
             PYBIND11_OVERLOAD_PURE(
                 Matrix,
                 IElement,
@@ -375,7 +376,7 @@ class ElementTrampoline: public IElement{
         }
         
 
-        Matrix N(const Vector& loc, OptionalVector ue) const override{
+        Matrix N(const Vector& loc, const Vector& ue) const override{
             PYBIND11_OVERLOAD_PURE(
                 Matrix,
                 IElement,
@@ -384,7 +385,7 @@ class ElementTrampoline: public IElement{
             );
         }
         
-        Matrix dNdx(const Vector& loc, OptionalVector ue) const override{
+        Matrix dNdx(const Vector& loc, const Vector& ue) const override{
             PYBIND11_OVERLOAD_PURE(
                 Matrix,
                 IElement,
@@ -393,7 +394,7 @@ class ElementTrampoline: public IElement{
             );
         }
         
-        Matrix B(const Vector& loc, OptionalVector ue)const override{
+        Matrix B(const Vector& loc, const Vector& ue)const override{
             PYBIND11_OVERLOAD_PURE(
                 Matrix,
                 IElement,
@@ -404,7 +405,7 @@ class ElementTrampoline: public IElement{
 
 
         /************************MATRIX METHODS*****************************/
-        const Matrix& Ke(OptionalVector ue) override{
+        const Matrix& Ke(const Vector& ue) override{
             PYBIND11_OVERLOAD_PURE(
                 const Matrix&,
                 IElement,
@@ -412,7 +413,7 @@ class ElementTrampoline: public IElement{
                 ue
             );
         }
-        const Matrix& Me(OptionalVector ue) override{
+        const Matrix& Me(const Vector& ue) override{
             PYBIND11_OVERLOAD_PURE(
                 const Matrix&,
                 IElement,

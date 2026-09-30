@@ -57,13 +57,14 @@ namespace finelc{
                 typename DetFn
             >
             const Matrix& get_Ke(
-                OptionalVector ue, 
+                const Vector& ue, 
                 int size,
                 IPointsFn&& gaussfunc,
                 BFn&& Bfunc, 
                 DFn&& Dfunc,
                 DetFn&& detJfunc){
-                    if(ue.has_value() || !Ke){
+                    if(!Ke || !ue.isZero()){
+                        
                         if(!Ke) Ke = std::make_unique<Matrix>(size,size);
                         Ke->setZero();
 
@@ -102,14 +103,14 @@ namespace finelc{
                 typename DetFn
             >
             const Matrix& get_Me(
-                OptionalVector ue, 
+                const Vector& ue, 
                 int size,
                 RhoCallerFn&& rhofunc,
                 IPointsFn&& gaussfunc,
                 NFn&& Nfunc,
                 DetFn&& detJfunc){
 
-                    if(ue.has_value() || !Me){
+                    if(!Me || !ue.isZero()){
                         if(!Me) Me = std::make_unique<Matrix>(size,size);
                         Me->setZero();
 

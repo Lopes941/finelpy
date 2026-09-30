@@ -6,7 +6,11 @@ from . import analysis
 from . import results
 from . import solver
 
+
+
 _all = [name for name in dir() if not name.startswith("_") and not name=='core']
+
+from .core import petsc_enabled, slepc_enabled, print_cpp_stats
 
 __all__ = _all
 __all__.extend(geometry.__all__)

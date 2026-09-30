@@ -194,6 +194,10 @@ namespace finelc{
                 std::unique_ptr<Mat> M=nullptr;
                 std::unique_ptr<PetscObjects> obj=nullptr;
             #endif
+
+            #ifdef USE_SLEPC
+                std::unique_ptr<SlepcObjects> slepc_obj=nullptr;
+            #endif
             
             std::vector<std::pair<DOFType,int>> get_dof_order(const IElement& el, int rows);
 
@@ -276,6 +280,10 @@ namespace finelc{
                 const Mat& get_PETSc_K();
                 const Mat& get_PETSc_M();
                 PetscObjects& get_PETSc_objects();
+            #endif
+
+            #ifdef USE_SLEPC
+                SlepcObjects& get_SLEPc_objects();
             #endif
 
     };

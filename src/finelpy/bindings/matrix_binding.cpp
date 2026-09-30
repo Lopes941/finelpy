@@ -58,38 +58,38 @@ namespace finelc{
 
     }
 
-    py::object eigen_to_scipy(const Matrix& mat){
+    // py::object eigen_to_scipy(const Matrix& mat){
 
-        py::module_ scipy_sparse = py::module_::import("scipy.sparse");
+    //     py::module_ scipy_sparse = py::module_::import("scipy.sparse");
 
-        const SparseMatrix& spmat = mat.get_sparse_data();
-        const int nnz = spmat.nonZeros();
+    //     const SparseMatrix& spmat = mat.get_sparse_data();
+    //     const int nnz = spmat.nonZeros();
 
-        py::array_t<double> data = py::array_t<double>(nnz);
-        py::array_t<int> rows = py::array_t<int>(nnz);
-        py::array_t<int> cols  = py::array_t<int>(nnz);
+    //     py::array_t<double> data = py::array_t<double>(nnz);
+    //     py::array_t<int> rows = py::array_t<int>(nnz);
+    //     py::array_t<int> cols  = py::array_t<int>(nnz);
 
-        auto data_mut = data.mutable_unchecked<1>();
-        auto cols_mut = cols.mutable_unchecked<1>();
-        auto rows_mut = rows.mutable_unchecked<1>();
+    //     auto data_mut = data.mutable_unchecked<1>();
+    //     auto cols_mut = cols.mutable_unchecked<1>();
+    //     auto rows_mut = rows.mutable_unchecked<1>();
 
-        int idx = 0;
-        for(int col=0; col<spmat.outerSize(); ++col){
-            for(SparseMatrix::InnerIterator it(spmat,col); it; ++it){
-                data_mut(idx) = it.value();
-                cols_mut(idx) = it.col();
-                rows_mut(idx) = it.row();
-                idx++;
-            }
-        }
+    //     int idx = 0;
+    //     for(int col=0; col<spmat.outerSize(); ++col){
+    //         for(SparseMatrix::InnerIterator it(spmat,col); it; ++it){
+    //             data_mut(idx) = it.value();
+    //             cols_mut(idx) = it.col();
+    //             rows_mut(idx) = it.row();
+    //             idx++;
+    //         }
+    //     }
 
-        py::tuple shape = py::make_tuple(mat.rows(), mat.cols());
-        py::object result = scipy_sparse.attr("coo_matrix")(
-            py::make_tuple(data, py::make_tuple(rows, cols)), py::arg("shape") = shape);
+    //     py::tuple shape = py::make_tuple(mat.rows(), mat.cols());
+    //     py::object result = scipy_sparse.attr("coo_matrix")(
+    //         py::make_tuple(data, py::make_tuple(rows, cols)), py::arg("shape") = shape);
 
-        return result;
+    //     return result;
 
-    }
+    // }
 
     Matrix from_python_to_matrix(py::object py_mat){
 
@@ -105,9 +105,9 @@ namespace finelc{
     py::object from_matrix_to_python(const Matrix& mat){
 
         if (mat.is_sparse()){
-            return eigen_to_scipy(mat);
+            return py::cast(mat.get_sparse_data(), py::return_value_policy::move);
         }else{
-            return py::cast(mat.get_dense_data());
+            return py::cast(mat.get_dense_data(), py::return_value_policy::move);
         }
     }
     

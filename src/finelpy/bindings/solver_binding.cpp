@@ -20,6 +20,7 @@
 #include <vector>
 #include <memory>
 
+
 using namespace finelc;
 namespace py = pybind11;
 
@@ -118,10 +119,33 @@ void bind_solver(py::module_& handle){
             Analysis object.
             )pbdoc")
 
+        .def("element_displacement",
+            &StaticResult::element_displacement,
+            py::arg("el_number"),
+            R"pbdoc(
+            Get the displacement vector of a given element.
+
+            Parameters
+            ------------
+            el_number: int
+                Element number.
+
+            Returns
+            -----------
+            u_e: numpy.ndarray
+                Displacement vector of the element.
+            )pbdoc")
+
         .def("displaced_nodes",
             &StaticResult::displaced_nodes,
+            py::arg("scale")=1,
             R"pbdoc(
             Displaced nodes from mesh.
+
+            Parameters
+            ------------
+            scale: float, optional (default=1)
+                Scale factor for displacements.
             )pbdoc")
 
         .def("ravel_displaced_elements",
@@ -284,31 +308,32 @@ void bind_solver(py::module_& handle){
                 Value of desired parameter at point.
             )pbdoc")
 
-        .def("compliance", 
-            &StaticResult::get_compliance,
-            R"pbdoc(
-            Get the compliance of this structure.
+        // .def("compliance", 
+        //     &StaticResult::get_compliance,
+        //     R"pbdoc(
+        //     Get the compliance of this structure.
 
-            Returns
-            -----------
-            value: float
-                Compliance.
-            )pbdoc")
+        //     Returns
+        //     -----------
+        //     value: float
+        //         Compliance.
+        //     )pbdoc")
 
-        .def("compliance_sensitivity",
-            &StaticResult::compliance_derivative,
-            R"pbdoc(
-            Get the sensitivity of the compliance of this structure for each element design variable.
-            Uses the interpolation scheme defined in analysis.Analysis.
+        // .def("compliance_sensitivity",
+        //     &StaticResult::compliance_derivative,
+        //     R"pbdoc(
+        //     Get the sensitivity of the compliance of this structure for each element design variable.
+        //     Uses the interpolation scheme defined in analysis.Analysis.
 
-            Returns
-            -----------
-            alpha: numpy.ndarray
-                Sensitivity of compliance.
-            )pbdoc")
+        //     Returns
+        //     -----------
+        //     alpha: numpy.ndarray
+        //         Sensitivity of compliance.
+        //     )pbdoc")
         ;
     }
     
+    {
     py::class_<StaticSolver, std::shared_ptr<StaticSolver>>(
         handle, 
         "StaticSolver",
@@ -351,4 +376,121 @@ void bind_solver(py::module_& handle){
             result: StaticResult
                 StaticResult object that holds results.
             )pbdoc");
+    }
+
+    {
+    py::class_<EigenResult, std::shared_ptr<EigenResult>>(
+        handle, 
+        "EigenResult", 
+        py::dynamic_attr(),
+        R"pbdoc(
+        Result object from Eigenvalue Solver.
+        )pbdoc")
+
+        .def_property_readonly("eigenvalues",
+            &EigenResult::get_eigenvalues,
+            R"pbdoc(
+            Eigenvalues.
+            )pbdoc")
+
+        .def_property_readonly("nat_frequencies",
+            [](const EigenResult& self) -> Vector {
+                Vector vals = self.get_eigenvalues();
+                for(int i=0;i<vals.size();i++){
+                    vals(i) = std::sqrt(vals(i))/(2*M_PI);
+                }
+                return vals;
+            },
+            R"pbdoc(
+            Natural frequencies.
+            )pbdoc")
+
+        .def_property_readonly("eigenvectors",
+            &EigenResult::get_eigenvectors,
+            R"pbdoc(
+            Eigenvectors.
+            )pbdoc")
+
+        .def_property_readonly("nodes",
+            &EigenResult::nodes,
+            R"pbdoc(
+            Nodes from mesh.
+            )pbdoc")
+        
+
+        .def_property_readonly("elements",
+            &EigenResult::elements,
+            R"pbdoc(
+            Elements from mesh.
+            )pbdoc")
+
+        .def_property_readonly("analysis",
+            &EigenResult::get_analysis,
+            R"pbdoc(
+            Analysis object.
+            )pbdoc")
+
+        .def("displaced_nodes",
+            &EigenResult::displaced_nodes,
+            py::arg("index"),
+            py::arg("scale")=1,
+            R"pbdoc(
+            Displaced nodes from mesh.
+
+            Parameters
+            ------------
+            index: int
+                Index of eigenvector to use.
+            scale: float, optional (default=1)
+                Scale factor for displacements.
+            )pbdoc")
+
+        .def("get_eigenvector",
+            &EigenResult::get_eigenvector,
+            py::arg("index"),
+            R"pbdoc(
+            Get eigenvector by index.
+
+            Parameters
+            ------------
+            index: int
+                Index of eigenvector to retrieve.
+            )pbdoc");
+
+    }
+
+    {
+    py::class_<EigenvalueSolver, std::shared_ptr<EigenvalueSolver>>(
+        handle, 
+        "EigenvalueSolver",
+        R"pbdoc(
+        Eigenvalue solver object.
+        )pbdoc")
+
+        .def(py::init<Analysis_ptr, int>(),
+            py::arg("analysis"),
+            py::arg("k")=6,
+            R"pbdoc(
+            Create a Eigenvalue solver.
+
+            Parameters
+            ------------
+            analysis: analysis.Analysis
+                Analysis object to solve.
+            k: int, optional (default=6)
+                Number of eigenvalues to compute.
+            )pbdoc")
+
+        .def("solve",
+            &EigenvalueSolver::solve,
+            R"pbdoc(
+            Runs the solver.
+
+            Returns
+            ------------
+            result: EigenResult
+                EigenResult object that holds results.
+            )pbdoc");
+
+    }
 }

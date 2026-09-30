@@ -108,22 +108,19 @@ target_link_libraries(core PRIVATE Spectra::Spectra)
 
 
 # ================================
-# Accelerate
+# Accelerate & Boost (macOS)
 # ================================
 
 if(APPLE)
     find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+    find_package(Boost CONFIG REQUIRED COMPONENTS math)
     target_link_libraries(core PRIVATE ${ACCELERATE_FRAMEWORK})
+    target_link_libraries(core PRIVATE Eigen3::Eigen Boost::math)
     target_compile_definitions(core PRIVATE MACOS=1)
 endif()
 
-if(APPLE)
-    find_package(Boost CONFIG REQUIRED COMPONENTS math)
-    target_link_libraries(core PRIVATE Eigen3::Eigen Boost::math)
-endif()
-
 # ================================
-# PETSc
+# PETSc & SLEPc
 # ================================
 
 find_package(PkgConfig QUIET)
@@ -131,65 +128,40 @@ find_package(PkgConfig QUIET)
 if(PkgConfig_FOUND)
 
     if(DEFINED ENV{CONDA_PREFIX})
-        set(ENV{PKG_CONFIG_PATH} "$ENV{CONDA_PREFIX}/lib/pkgconfig")
+        if(DEFINED ENV{PKG_CONFIG_PATH})
+            set(ENV{PKG_CONFIG_PATH} "$ENV{CONDA_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+        else()
+            set(ENV{PKG_CONFIG_PATH} "$ENV{CONDA_PREFIX}/lib/pkgconfig")
+        endif()
         message(STATUS "Using PKG_CONFIG_PATH=$ENV{PKG_CONFIG_PATH}")
     else()
         message(STATUS "CONDA_PREFIX is not set — activate your conda environment first")
     endif()
 
-    pkg_check_modules(PETSC QUIET PETSc)
+    pkg_check_modules(PETSC QUIET IMPORTED_TARGET PETSc petsc)
+
+    pkg_check_modules(SLEPC QUIET IMPORTED_TARGET SLEPc)
+    if(NOT SLEPC_FOUND)
+        pkg_check_modules(SLEPC QUIET IMPORTED_TARGET slepc)
+    endif()
+
 endif()
 
 
-# if(PETSC_FOUND AND PkgConfig_FOUND)
+if(PETSC_FOUND)
+    message(STATUS "PETSc found via PkgConfig")
 
-#     message(STATUS "PETSc found: ${PETSC_DIR}")
+    find_package(MPI REQUIRED)
 
-#     # Query PETSc's MPI compiler wrappers
-#     execute_process(
-#         COMMAND pkg-config --variable=mpicc PETSc
-#         OUTPUT_VARIABLE PETSC_MPICC
-#         OUTPUT_STRIP_TRAILING_WHITESPACE
-#     )
+    target_link_libraries(core PRIVATE PkgConfig::PETSC MPI::MPI_CXX)
+    target_compile_definitions(core PRIVATE USE_PETSC)
+endif()
 
-#     execute_process(
-#         COMMAND pkg-config --variable=mpicxx PETSc
-#         OUTPUT_VARIABLE PETSC_MPICXX
-#         OUTPUT_STRIP_TRAILING_WHITESPACE
-#     )
-
-#     if(PETSC_MPICC AND PETSC_MPICXX)
-#         message(STATUS "PETSc MPI C compiler:  ${PETSC_MPICC}")
-#         message(STATUS "PETSc MPI CXX compiler: ${PETSC_MPICXX}")
-
-#         set(MPI_C_COMPILER   ${PETSC_MPICC}  CACHE FILEPATH "" FORCE)
-#         set(MPI_CXX_COMPILER ${PETSC_MPICXX} CACHE FILEPATH "" FORCE)
-#     endif()
-    
-#     find_package(MPI REQUIRED)
-
-#     add_library(PETSc::PETSc INTERFACE IMPORTED)
-
-#     target_include_directories(PETSc::PETSc INTERFACE
-#         ${PETSC_INCLUDE_DIRS}
-#     )
-
-#     target_link_libraries(PETSc::PETSc INTERFACE
-#         ${PETSC_LIBRARIES}
-#         MPI::MPI_CXX
-#     )
-
-#     target_compile_options(PETSc::PETSc INTERFACE
-#         ${PETSC_CFLAGS_OTHER}
-#     )
-
-#     target_link_libraries(core PRIVATE PETSc::PETSc)
-#     target_compile_definitions(core PRIVATE USE_PETSC)
-
-            
-        
-# endif()
-
+if(SLEPC_FOUND)
+    message(STATUS "SLEPc found via PkgConfig")
+    target_link_libraries(core PRIVATE PkgConfig::SLEPC)
+    target_compile_definitions(core PRIVATE USE_SLEPC)
+endif()
 
 
 # =================================

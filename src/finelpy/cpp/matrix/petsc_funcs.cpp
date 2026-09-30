@@ -13,6 +13,12 @@
 #include <numeric>
 #include <algorithm>
 
+#ifdef USE_SLEPC
+    #include <slepc.h>
+    #include <slepceps.h>
+    #include <slepcst.h>
+#endif
+
 namespace finelc{
 
     Vector petsc_solve_direct(const Vector& rhs,
@@ -106,6 +112,68 @@ namespace finelc{
 
     //     return sol;
     //}
+
+    #ifdef USE_SLEPC
+    
+        std::vector<EigenPair> slepc_solve_eigen(SlepcObjects& obj, int k, double sigma){
+
+            // Generalized eigenvalue operators
+            EPSSetOperators(obj.eps, *obj.Kmat, *obj.Mmat);
+            EPSSetProblemType(obj.eps, EPS_GHEP);
+
+            EPSSetTarget(obj.eps, sigma);
+            EPSSetWhichEigenpairs(obj.eps, EPS_TARGET_MAGNITUDE);
+            EPSSetDimensions(obj.eps, k, PETSC_DECIDE, PETSC_DECIDE);
+
+
+            ST st;
+            EPSGetST(obj.eps, &st);
+            STSetType(st, STSINVERT);
+            STSetShift(st, sigma);
+            STSetMatStructure(st, SAME_NONZERO_PATTERN);
+
+            EPSSetFromOptions(obj.eps);
+
+            EPSSolve(obj.eps);
+
+            PetscInt nconv = 0;
+            EPSGetConverged(obj.eps, &nconv);
+
+            if (nconv == 0) {
+                throw std::runtime_error("SLEPc Error: No eigenvalues converged.");
+            }
+
+            std::vector<EigenPair> pairs;
+            int output_count = std::min(static_cast<int>(nconv), k);
+            pairs.reserve(output_count);
+
+            Vec vr, vi;
+            MatCreateVecs(*obj.Kmat, &vr, &vi);
+
+            PetscInt n;
+            VecGetSize(vr, &n);
+            std::vector<PetscInt> idx(n);
+            std::iota(idx.begin(), idx.end(), 0);
+
+            for (int i = 0; i < output_count; ++i) {
+                PetscScalar kr, ki;
+                EPSGetEigenpair(obj.eps, i, &kr, &ki, vr, vi);
+
+                EigenPair pair;
+                pair.val = PetscRealPart(kr);
+                pair.vector.resize(n);
+                VecGetValues(vr, n, idx.data(), pair.vector.data());
+
+                pairs.push_back(std::move(pair));
+            }
+
+            VecDestroy(&vr);
+            VecDestroy(&vi);
+
+            return pairs;
+        }
+
+    #endif
 
 
     

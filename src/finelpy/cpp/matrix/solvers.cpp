@@ -8,6 +8,10 @@
 
 #include <iostream>
 
+#include <Spectra/MatOp/DenseSymMatProd.h>
+#include <Spectra/MatOp/SparseCholesky.h>
+#include <Spectra/SymGEigsSolver.h>
+
 
 namespace finelc{
 
@@ -110,5 +114,46 @@ namespace finelc{
         }
     }
 
+
+    GenEigen::GenEigen(Matrix A_obj, Matrix B_obj, int k, double sigma, IterativeProperties properties_): 
+    A(A_obj), B(B_obj), sigma(sigma), k(k), prop(properties_)
+    {}
+
+    std::vector<EigenPair> GenEigen::solve(){
+
+        Matrix A_sparse_mat = A.is_sparse() ? A : A.as_sparse();
+        Matrix B_sparse_mat = B.is_sparse() ? B : B.as_sparse();
+
+        const auto& A_sp = A_sparse_mat.get_sparse_data();
+        const auto& B_sp = B_sparse_mat.get_sparse_data();
+
+        // 2. Set up Spectra operators
+        Spectra::SparseSymMatProd<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> op(A_sp);
+        Spectra::SparseCholesky<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> Bop(B_sp);
+
+        int ncv = std::min(static_cast<int>(A_sp.rows()), std::max(2 * k, k + 2));
+
+        Spectra::SymGEigsSolver<decltype(op), 
+                                decltype(Bop), 
+                                Spectra::GEigsMode::Cholesky> 
+                                geigs(op, Bop, k, ncv);
+
+        // 3. Initialize workspace and solve
+        geigs.init();
+        int nconv = geigs.compute(Spectra::SortRule::SmallestMagn, prop.max_iter, prop.tol);
+
+        if (geigs.info() != Spectra::CompInfo::Successful || nconv == 0) {
+            throw std::runtime_error("Spectra eigenvalue computation failed to converge.");
+        }
+
+        // 4. Return the primary eigenvalue and eigenvector pair
+        std::vector<EigenPair> pairs(k);
+        for (int i = 0; i < k; ++i) {
+            pairs[i].val = geigs.eigenvalues()(i);
+            pairs[i].vector = geigs.eigenvectors().col(i);
+        }
+        return pairs;
+            
+    }
     
 } // namespace finelc

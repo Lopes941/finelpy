@@ -26,6 +26,8 @@ namespace finelc{
         double val;
     };
 
+
+
     class StaticResult{
 
         private:
@@ -37,8 +39,16 @@ namespace finelc{
             StaticResult(Vector U_, Analysis_ptr analysis_): U(U_), analysis(analysis_) {}
             ~StaticResult()=default;
 
+            const VectorNodes& nodes()const{return analysis->nodes();}
+            const VectorElements& elements()const{return analysis->elements();}
+            Analysis_ptr get_analysis()const{return analysis;}
+
             Vector u()const{
                 return analysis->reconstruct_ug(U);
+            }
+
+            Vector element_displacement(int el_number)const{
+                return analysis->get_element_ue(U,el_number);
             }
 
             std::vector<Point> get_points(int internal_pts=10)const;
@@ -84,32 +94,28 @@ namespace finelc{
                 return compute_mean(U,analysis,id,gauss_pts);
             }
 
-            const VectorNodes& nodes()const{return analysis->nodes();}
-            const VectorElements& elements()const{return analysis->elements();}
-            Analysis_ptr get_analysis()const{return analysis;}
+            // double get_compliance()const{
+            //     Vector ug =analysis->reconstruct_ug(U); 
+            //     return analysis->fg().dot(ug);
+            // }
 
-            double get_compliance()const{
-                Vector ug =analysis->reconstruct_ug(U); 
-                return analysis->fg().dot(ug);
-            }
+            // Vector compliance_derivative()const{
 
-            Vector compliance_derivative()const{
+            //     int num_elements = analysis->number_of_elements();
+            //     Vector alpha(num_elements);
+            //     Vector interpolation = analysis->get_interpolation_derivative();
 
-                int num_elements = analysis->number_of_elements();
-                Vector alpha(num_elements);
-                Vector interpolation = analysis->get_interpolation_derivative();
+            //     for(int e=0;e<num_elements;e++){
 
-                for(int e=0;e<num_elements;e++){
+            //         IElement_ptr el = analysis->elements()[e];
+            //         Vector ue = analysis->get_element_ue(U,e);
+            //         Matrix Ke = el->Ke(ue);
 
-                    IElement_ptr el = analysis->elements()[e];
-                    Vector ue = analysis->get_element_ue(U,e);
-                    Matrix Ke = el->Ke(ue);
+            //         alpha(e) = interpolation(e) * ue.dot(Ke * ue);
+            //     }
 
-                    alpha(e) = interpolation(e) * ue.dot(Ke * ue);
-                }
-
-                return alpha;
-            }
+            //     return alpha;
+            // }
 
             VectorNodes displaced_nodes(double scale=1)const{
                 return analysis->displaced_nodes(U,scale);
@@ -118,10 +124,59 @@ namespace finelc{
     };
 
 
-    // struct EigenResult{
-    //     const Matrix U;
-    //     const Vector lambda;
-    // };
+    struct EigenResult{
+        
+        private:
+
+            Analysis_ptr analysis;
+            std::vector<EigenPair> pairs;
+
+        public:
+
+            EigenResult(std::vector<EigenPair> pairs_, Analysis_ptr analysis_): pairs(pairs_), analysis(analysis_) {}
+            ~EigenResult()=default;
+
+            const VectorNodes& nodes()const{return analysis->nodes();}
+            const VectorElements& elements()const{return analysis->elements();}
+            Analysis_ptr get_analysis()const{return analysis;}
+
+            Vector get_eigenvalues()const{
+                int k = pairs.size();
+                Vector vals(k);
+                for(int i=0;i<k;i++){
+                    vals(i) = pairs[i].val;
+                }
+                return vals;
+            }
+
+            Vector get_eigenvector(int index)const{
+                if(index < 0 || index >= pairs.size()){
+                    throw std::out_of_range("Eigenvector index out of range.");
+                }
+                return pairs[index].vector;
+            }
+
+            Matrix get_eigenvectors()const{
+                int k = pairs.size();
+                if(k == 0) return Matrix(0,0);
+
+                int n = pairs[0].vector.size();
+                Matrix vecs(n,k);
+                for(int i=0;i<k;i++){
+                    vecs.get_col(i) = pairs[i].vector;
+                }
+                return vecs;
+            }
+
+            VectorNodes displaced_nodes(int index, double scale=1)const{
+                if(index < 0 || index >= pairs.size()){
+                    throw std::out_of_range("Eigenvector index out of range.");
+                }
+
+                return analysis->displaced_nodes(pairs[index].vector,scale);
+            }
+
+    };
     
     
 } // namespace finelc

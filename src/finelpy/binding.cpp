@@ -5,11 +5,15 @@
 
 #include <finelc/binding/bindings.h>
 
+#include<finelc/matrix.h>
 
 #ifdef USE_PETSC
     #include <petscsys.h>
 #endif
 
+#ifdef USE_SLEPC
+    #include <slepcsys.h>
+#endif
 
 
 PYBIND11_MODULE(core, mod) {
@@ -18,10 +22,10 @@ PYBIND11_MODULE(core, mod) {
 
 
     #ifdef USE_PETSC
-        PetscBool initialized;
-        PetscInitialized(&initialized);
+        PetscBool petsc_initialized;
+        PetscInitialized(&petsc_initialized);
 
-        if (!initialized) {
+        if (!petsc_initialized) {
             PetscOptionsInsertString(nullptr,
                 "-no_signal_handler -no_signal_handler_internal "
                 "-malloc_debug 0 -malloc_dump 0");
@@ -31,6 +35,22 @@ PYBIND11_MODULE(core, mod) {
         mod.def("petsc_enabled", []() { return true; });
     #else
         mod.def("petsc_enabled", []() { return false; });
+    #endif
+
+    #ifdef USE_SLEPC
+        PetscBool slepc_initialized;
+        SlepcInitialized(&slepc_initialized);
+
+        if (!slepc_initialized) {
+            PetscOptionsInsertString(nullptr,
+                "-no_signal_handler -no_signal_handler_internal "
+                "-malloc_debug 0 -malloc_dump 0");
+
+            SlepcInitialize(nullptr, nullptr, nullptr, nullptr);
+        }
+        mod.def("slepc_enabled", []() { return true; });
+    #else
+        mod.def("slepc_enabled", []() { return false; });
     #endif
 
     
@@ -56,5 +76,7 @@ PYBIND11_MODULE(core, mod) {
     bind_mesh(mesh_sub);
     bind_analysis(analysis_sub);
     bind_solver(solver_sub);
+
+    mod.def("print_cpp_stats", &ScopedTimer::print_stats);
 
 }

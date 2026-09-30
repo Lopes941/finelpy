@@ -251,8 +251,8 @@ void bind_element(py::module_& handle){
         /**********************SHAPE METHODS****************************/
 
         .def("J", 
-            &IElement::J,
-            py::arg("loc")=py::none(),
+            py::overload_cast<const Vector&>(&IElement::J, py::const_),
+            py::arg("loc"),
             R"pbdoc(
             Get the Jacobian of element at given local coordinate.
 
@@ -267,9 +267,21 @@ void bind_element(py::module_& handle){
                 Jacobian matrix.
             )pbdoc")
 
+        .def("J", 
+            py::overload_cast<>(&IElement::J, py::const_),
+            R"pbdoc(
+            Get the Jacobian of element at origin coordinates.
+
+
+            Returns
+            --------
+            J: numpy.array
+                Jacobian matrix.
+            )pbdoc")
+
         .def("detJ", 
-            &IElement::detJ,
-            py::arg("loc")=py::none(),
+            py::overload_cast<const Vector&>(&IElement::detJ, py::const_),
+            py::arg("loc"),
             R"pbdoc(
             Get the determinant of the Jacobian of element at given local coordinate.
 
@@ -277,6 +289,17 @@ void bind_element(py::module_& handle){
             -----------
             loc: tuple (2 or 3 elements)
                 Local coordinates where the value is computed.
+
+            Returns
+            --------
+            detJ: float
+                Determinant of Jacobian matrix.
+            )pbdoc")
+
+        .def("detJ", 
+            py::overload_cast<>(&IElement::detJ, py::const_),
+            R"pbdoc(
+            Get the determinant of the Jacobian of element at origin coordinates.
 
             Returns
             --------
@@ -391,9 +414,10 @@ void bind_element(py::module_& handle){
 
         /******************CONSTITUTIVE METHODS************************/
 
-        .def("D", &IElement::D,
-            py::arg("loc")=py::none(),
-            py::arg("displacement")=py::none(),
+        .def("D", 
+            py::overload_cast<const Vector&, const Vector&>(&IElement::D, py::const_),
+            py::arg("loc"),
+            py::arg("displacement"),
             R"pbdoc(
             Get the constitutive matrix of the element at given point.
 
@@ -409,13 +433,42 @@ void bind_element(py::module_& handle){
             D: numpy.array
                 Constitutive matrix of element evaluated at given point.
             )pbdoc")
+
+        .def("D",
+            py::overload_cast<const Vector&>(&IElement::D, py::const_),
+            py::arg("loc"),
+            R"pbdoc(
+            Get the constitutive matrix of the element at given point.
+
+            Parameters
+            -----------
+            loc: tuple (2 or 3 elements)
+                Local coordinates where the value is computed.
+
+            Returns
+            --------
+            D: numpy.array
+                Constitutive matrix of element evaluated at given point.
+            )pbdoc")
+
+        .def("D", 
+            py::overload_cast<>(&IElement::D, py::const_),
+            R"pbdoc(
+            Get the constitutive matrix of the element at origin coordinates.
+
+            Returns
+            --------
+            D: numpy.array
+                Constitutive matrix of element evaluated at given point.
+            )pbdoc")
         
 
         /*********************PHYSICS METHODS**************************/
 
-        .def("N", &IElement::N,
+        .def("N", 
+            py::overload_cast<const Vector&, const Vector&>(&IElement::N, py::const_),
             py::arg("loc"),
-            py::arg("displacement")=py::none(),
+            py::arg("displacement"),
             R"pbdoc(
             Get the interpolation functions of the element.
             Note the difference between the shape functions (geometric) and the interpolation
@@ -434,9 +487,29 @@ void bind_element(py::module_& handle){
                 Vector with evaluated interpolation functions.
             )pbdoc")
 
-        .def("dNdx", &IElement::dNdx,
+        .def("N", 
+            py::overload_cast<const Vector&>(&IElement::N, py::const_),
             py::arg("loc"),
-            py::arg("displacement")=py::none(),
+            R"pbdoc(
+            Get the interpolation functions of the element.
+            Note the difference between the shape functions (geometric) and the interpolation
+            functions (physics).
+
+            Parameters
+            -----------
+            loc: tuple (2 or 3 elements)
+                Local coordinates where the value is computed.
+
+            Returns
+            --------
+            N: numpy.array
+                Vector with evaluated interpolation functions.
+            )pbdoc")
+
+        .def("dNdx", 
+            py::overload_cast<const Vector&, const Vector&>(&IElement::dNdx, py::const_),
+            py::arg("loc"),
+            py::arg("displacement"),
             R"pbdoc(
             Get the derivatives of interpolation functions of the element with respect to GLOBAL VARIABLES
             evaluated at given local coordinate.
@@ -456,9 +529,30 @@ void bind_element(py::module_& handle){
                 Vector with evaluated interpolation functions derivatives.
             )pbdoc")
 
-        .def("B", &IElement::B,
+        .def("dNdx", 
+            py::overload_cast<const Vector&>(&IElement::dNdx, py::const_),
             py::arg("loc"),
-            py::arg("displacement")=py::none(),
+            R"pbdoc(
+            Get the derivatives of interpolation functions of the element with respect to GLOBAL VARIABLES
+            evaluated at given local coordinate.
+            Note the difference between the shape functions (geometric) and the interpolation
+            functions (physics).
+
+            Parameters
+            -----------
+            loc: tuple (2 or 3 elements)
+                Local coordinates where the value is computed.
+
+            Returns
+            --------
+            dN: numpy.array
+                Vector with evaluated interpolation functions derivatives.
+            )pbdoc")
+
+        .def("B", 
+            py::overload_cast<const Vector&, const Vector&>(&IElement::B, py::const_),
+            py::arg("loc"),
+            py::arg("displacement"),
             R"pbdoc(
             Get the strain-displacement matrix at a given location.
 
@@ -475,9 +569,26 @@ void bind_element(py::module_& handle){
                 Strain-displacement matrix.
             )pbdoc")
 
+        .def("B", 
+            py::overload_cast<const Vector&>(&IElement::B, py::const_),
+            py::arg("loc"),
+            R"pbdoc(
+            Get the strain-displacement matrix at a given location.
+
+            Parameters
+            -----------
+            loc: tuple (2 or 3 elements)
+                Local coordinates where the value is computed.
+
+            Returns
+            --------
+            B: numpy.array
+                Strain-displacement matrix.
+            )pbdoc")
+
         .def("Ke", 
-            &IElement::Ke,
-            py::arg("displacement")=py::none(),
+            py::overload_cast<const Vector&>(&IElement::Ke),
+            py::arg("displacement"),
             R"pbdoc(
             Get the stiffness matrix of element.
 
@@ -492,9 +603,20 @@ void bind_element(py::module_& handle){
                 Stiffness matrix of element.
             )pbdoc")
 
+        .def("Ke", 
+            py::overload_cast<>(&IElement::Ke),
+            R"pbdoc(
+            Get the stiffness matrix of linear element.
+
+            Returns
+            --------
+            Ke: numpy.array
+                Stiffness matrix of element.
+            )pbdoc")
+
         .def("Me", 
-            &IElement::Me,
-            py::arg("displacement")=py::none(),
+            py::overload_cast<const Vector&>(&IElement::Me),
+            py::arg("displacement"),
             R"pbdoc(
             Get the mass matrix of element.
 
@@ -502,6 +624,17 @@ void bind_element(py::module_& handle){
             -----------
             displacement: array, optional (default=None)
                 Nodal displacements of element, used in non-linear analyses.
+
+            Returns
+            --------
+            Ke: numpy.array
+                Mass matrix of element.
+            )pbdoc")
+
+        .def("Me", 
+            py::overload_cast<>(&IElement::Me),
+            R"pbdoc(
+            Get the mass matrix of linear element.
 
             Returns
             --------

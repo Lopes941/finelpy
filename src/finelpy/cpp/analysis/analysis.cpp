@@ -238,7 +238,7 @@ namespace finelc{
     std::vector<Triplet> Analysis::assemble(Assembler type){
 
         // TODO insert get ue logic here
-        OptionalVector ue = std::nullopt;
+        // OptionalVector ue = std::nullopt;
 
 
         int non_zero_vals = 0;
@@ -247,7 +247,7 @@ namespace finelc{
             non_zero_vals += el->displacement_size()*el->displacement_size();
         }
 
-        using ElementMatrixFn = const Matrix& (IElement::*)(OptionalVector);
+        using ElementMatrixFn = const Matrix& (IElement::*)();
         ElementMatrixFn getMatrix = nullptr;
 
         switch (type) {
@@ -259,6 +259,8 @@ namespace finelc{
             case Assembler::Mass:
                 getMatrix = &IElement::Me;
                 break;
+            default:
+            throw std::invalid_argument("Unhandled Assembler type in Analysis::assemble");
         }
 
         std::vector<Triplet> triplets;
@@ -275,7 +277,7 @@ namespace finelc{
         for(int el=0; el<elements.size(); el++){
 
             IElement& element = *elements[el];
-            const Matrix& Mat_e = ((element).*getMatrix)(ue);
+            const Matrix& Mat_e = ((element).*getMatrix)();
             int rows = Mat_e.rows();
 
             double rho_el = has_interp? interps(el):interps(0);
@@ -300,7 +302,7 @@ namespace finelc{
     Vector Analysis::assemble_fg(){
 
         // TODO insert get ue logic here
-        OptionalVector ue = std::nullopt;
+        // OptionalVector ue = std::nullopt;
 
         Vector fg = *fg_bc;
 
@@ -346,7 +348,7 @@ namespace finelc{
                     
                     for(auto& gp : gauss_pts){
                         Vector gp_vec = gp.point.as_vector();
-                        Vector N = el->N(gp_vec,std::nullopt).get_row(dof_number);
+                        Vector N = el->N(gp_vec).get_row(dof_number);
                         double double_val = force.get_value_at(el->local_to_global(gp.point));
                         double detJ = el->detJ(gp_vec);
                         fe += N*double_val*detJ*gp.weight;
@@ -836,6 +838,29 @@ namespace finelc{
 
             }
             return *obj;
+        }
+    #endif
+
+    #ifdef USE_SLEPC
+        SlepcObjects& Analysis::get_SLEPc_objects(){
+
+            if(!slepc_obj){
+
+                const Mat* Kmat = &get_PETSc_K();
+                const Mat* Mmat = &get_PETSc_M();
+
+                slepc_obj = std::make_unique<SlepcObjects>();
+                slepc_obj->Kmat = Kmat;
+                slepc_obj->Mmat = Mmat;
+                slepc_obj->n = num_free_dofs;
+
+                EPSCreate(PETSC_COMM_SELF, &slepc_obj->eps);
+                EPSSetOperators(slepc_obj->eps, *slepc_obj->Kmat, *slepc_obj->Mmat);
+                EPSSetProblemType(slepc_obj->eps, EPS_GHEP); // Generalized Hermitian Eigenvalue Problem
+                EPSSetFromOptions(slepc_obj->eps);
+
+            }
+            return *slepc_obj;
         }
     #endif
 

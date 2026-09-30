@@ -280,7 +280,10 @@ namespace finelc{
              * 
              * @return Matrix The Jacobian matrix at the specified location.
              */
-            virtual Matrix J(OptionalVector loc)const=0;
+            virtual Matrix J(const Vector& loc)const=0;
+            Matrix J()const{
+                return J(default_zero_vec3());
+            }
 
             /**
              * @brief Compute the determinant of the Jacobian at a given location.
@@ -289,7 +292,10 @@ namespace finelc{
              * 
              * @return double The determinant of the Jacobian at the specified location.
              */
-            virtual double detJ(OptionalVector loc)const=0;
+            virtual double detJ(const Vector& loc)const=0;
+            double detJ()const{
+                return detJ(default_zero_vec3());
+            }
 
 
             /**
@@ -379,7 +385,13 @@ namespace finelc{
              * 
              * @return Matrix The constitutive matrix at the specified location.
              */
-            virtual Matrix D(OptionalVector loc, OptionalVector ue)const=0;
+            virtual Matrix D(const Vector& loc, const Vector& ue)const=0;
+            Matrix D(const Vector& loc)const{
+                return D(loc, default_zero_vec(displacement_size()));
+            }
+            Matrix D()const{
+                return D(default_zero_vec3(), default_zero_vec(displacement_size()));
+            }
 
 
             /*********************PHYSICS METHODS**************************/
@@ -422,7 +434,10 @@ namespace finelc{
              * 
              * @return Matrix The interpolation functions evaluated at the specified location.
              */
-            virtual Matrix N(const Vector& loc, OptionalVector ue) const=0;
+            virtual Matrix N(const Vector& loc, const Vector& ue) const=0;
+            Matrix N(const Vector& loc) const{
+                return N(loc, default_zero_vec(displacement_size()));
+            }
 
             /**
              * @brief Get the derivatives of the interpolation functions with respect to global coordinates at a given location.
@@ -434,7 +449,10 @@ namespace finelc{
              * 
              * @return Matrix The derivatives of the interpolation functions evaluated at the specified location.
              */
-            virtual Matrix dNdx(const Vector& loc, OptionalVector ue) const=0;
+            virtual Matrix dNdx(const Vector& loc, const Vector& ue) const=0;
+            Matrix dNdx(const Vector& loc) const{
+                return dNdx(loc, default_zero_vec(displacement_size()));
+            }
 
             /**
              * @brief Get the strain-displacement matrix at a given location.
@@ -444,7 +462,10 @@ namespace finelc{
              * 
              * @return Matrix The strain-displacement matrix at the specified location.
              */
-            virtual Matrix B(const Vector& loc, OptionalVector ue)const=0;
+            virtual Matrix B(const Vector& loc, const Vector& ue)const=0;
+            Matrix B(const Vector& loc)const{
+                return B(loc, default_zero_vec(displacement_size()));
+            }
 
 
             /************************INTEGRATION METHODS*****************************/
@@ -499,7 +520,11 @@ namespace finelc{
              * 
              * @return const Matrix& The elemental stiffness matrix.
              */
-            virtual const Matrix& Ke(OptionalVector ue)=0;
+            virtual const Matrix& Ke(const Vector& ue)=0;
+            const Matrix& Ke(){
+                // ScopedTimer timer; 
+                return Ke(default_zero_vec(displacement_size()));
+            }
 
             /**
              * @brief Get the elemental mass matrix.
@@ -508,7 +533,10 @@ namespace finelc{
              * 
              * @return const Matrix& The elemental mass matrix.
              */
-            virtual const Matrix& Me(OptionalVector ue)=0;
+            virtual const Matrix& Me(const Vector& ue)=0;
+            const Matrix& Me(){
+                return Me(default_zero_vec(displacement_size()));
+            }
 
 
             /*********************RESULT ACCESS METHODS**************************/
@@ -768,8 +796,8 @@ namespace finelc{
              * 
              * @return Matrix The Jacobian matrix at the specified location.
              */
-            Matrix J(OptionalVector loc)const override{
-                return shape->J(get_nodes(), loc? loc->get():default_zero_vec(3) );
+            Matrix J(const Vector& loc)const override{
+                return shape->J(get_nodes(), loc);
             }
 
             /**
@@ -779,8 +807,8 @@ namespace finelc{
              * 
              * @return double The determinant of the Jacobian at the specified location.
              */
-            double detJ(OptionalVector loc)const override{
-                return shape->detJ(get_nodes(), loc? loc->get():default_zero_vec(3) );
+            double detJ(const Vector& loc)const override{
+                return shape->detJ(get_nodes(), loc);
             }
 
             /**
@@ -873,10 +901,8 @@ namespace finelc{
              * 
              * @return Matrix The constitutive matrix at the specified location.
              */
-            Matrix D(OptionalVector loc, OptionalVector ue)const override{
-                return material->D(
-                    loc? loc->get():default_zero_vec(3),
-                    ue? ue->get():default_zero_vec(displacement_size()));
+            Matrix D(const Vector& loc, const Vector& ue)const override{
+                return material->D(loc, ue);
             }
 
 
@@ -922,7 +948,7 @@ namespace finelc{
              * 
              * @return Matrix The interpolation functions evaluated at the specified location.
              */
-            Matrix N(const Vector& loc, OptionalVector ue) const override{
+            Matrix N(const Vector& loc, const Vector& ue) const override{
                 return physics->N(N_shape(loc),loc);
             }
 
@@ -936,7 +962,7 @@ namespace finelc{
              * 
              * @return Matrix The derivatives of the interpolation functions evaluated at the specified location.
              */
-            Matrix dNdx(const Vector& loc, OptionalVector ue) const override{
+            Matrix dNdx(const Vector& loc, const Vector& ue) const override{
                 return physics->dNdx(dNdx_shape(loc),loc);
             }
 
@@ -948,7 +974,7 @@ namespace finelc{
              * 
              * @return Matrix The strain-displacement matrix at the specified location.
              */
-            Matrix B(const Vector& loc,OptionalVector ue)const override{
+            Matrix B(const Vector& loc, const Vector& ue)const override{
                 return physics->B(dNdx(loc,ue),loc);
             }
 
@@ -961,7 +987,8 @@ namespace finelc{
              * 
              * @return const Matrix& The elemental stiffness matrix.
              */
-            const Matrix& Ke(OptionalVector ue) override;
+            const Matrix& Ke(const Vector& ue) override;
+            
 
             /**
              * @brief Get the elemental mass matrix.
@@ -970,7 +997,7 @@ namespace finelc{
              * 
              * @return const Matrix& The elemental mass matrix.
              */
-            const Matrix& Me(OptionalVector ue) override;
+            const Matrix& Me(const Vector& ue) override;
 
             /*********************RESULT ACCESS METHODS**************************/
 

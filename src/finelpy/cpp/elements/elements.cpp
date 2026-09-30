@@ -215,36 +215,29 @@ namespace finelc{
         return false;
     }
 
-    const Matrix& Element::Ke(OptionalVector ue){
-        if(is_linear() && ue.has_value()){
-            ue = std::nullopt;
-        }
-
+    const Matrix& Element::Ke(const Vector& ue){
+        // ScopedTimer timer; 
         return matrices->get_Ke(ue,
                                 displacement_size(),
                                 [this]() {
                                     return this->integration_pair();
                                 },
                                 
-                                [this](const Vector& a, const OptionalVector& b) {
+                                [this](const Vector& a, const Vector& b) {
                                     return this->B(a, b);
                                 },
 
-                                [this](const OptionalVector& a, const OptionalVector& b) {
+                                [this](const Vector& a, const Vector& b) {
                                     return this->D(a, b);
                                 },
 
-                                [this](const OptionalVector& a) {
+                                [this](const Vector& a) {
                                     return this->detJ(a);
                                 });
                 
     }
 
-    const Matrix& Element::Me(OptionalVector ue){
-        if(is_linear() && ue.has_value()){
-            ue = std::nullopt;
-        }
-
+    const Matrix& Element::Me(const Vector& ue){
         return matrices->get_Me(ue,
                                 displacement_size(),
                                 [this]() {
@@ -254,13 +247,12 @@ namespace finelc{
                                     return this->integration_pair();
                                 },
 
-                                [this](const Vector& a, const OptionalVector& b) {
+                                [this](const Vector& a, const Vector& b) {
                                     return this->N(a, b);
                                 },
-                                [this](const OptionalVector& a) {
+                                [this](const Vector& a) {
                                     return this->detJ(a);
-                                });
-                
+                                });   
     }
 
     void ElementBuilder::check_compatibility(ShapeType shape_type,

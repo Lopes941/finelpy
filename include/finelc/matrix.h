@@ -3,7 +3,6 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
-#include <optional>
 #include <type_traits>
 
 #ifdef USE_PETSC
@@ -13,17 +12,20 @@
     using FinelIndex = int;
 #endif
 
+#ifdef USE_SLEPC
+    #include <slepc.h>
+    #include <slepceps.h>
+    #include <slepcst.h>
+#endif
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
 #include <Spectra/SymGEigsSolver.h>
-#include <Spectra/MatOp/DenseSymMatProd.h>
-#include <Spectra/MatOp/SparseCholesky.h>
 
 using Vector = Eigen::VectorXd;
 using Triplet = Eigen::Triplet<double>;
 
-using OptionalVector = std::optional<std::reference_wrapper<const Vector>>;
 
 using DenseMatrix = Eigen::MatrixXd;
 using SparseMatrix = Eigen::SparseMatrix<double, Eigen::RowMajor,FinelIndex>;
@@ -33,15 +35,60 @@ using DenseSolver = Eigen::PartialPivLU<DenseMatrix>;
 using SparseSolver = Eigen::SparseLU<SparseMatrix>;
 using IterativeSolver = Eigen::ConjugateGradient<SparseMatrix, Eigen::Lower|Eigen::Upper,SparseSolver>;
 
-using DenseSymOp = Spectra::DenseSymMatProd<double>;
-using SpartseSymOp = Spectra::SparseCholesky<double>;
 
+struct EigenPair
+{
+    double val;
+    Vector vector;
+};
+
+#include <chrono>
+#include <iostream>
+#include <atomic>
+
+class ScopedTimer {
+    public:
+        static inline std::atomic<uint64_t> total_ns{0};
+        static inline std::atomic<uint64_t> call_count{0};
+
+        ScopedTimer() : start_(std::chrono::high_resolution_clock::now()) {}
+
+        ~ScopedTimer() {
+            auto end = std::chrono::high_resolution_clock::now();
+            total_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start_).count();
+            call_count++;
+        }
+
+        static void print_stats() {
+            double total_ms = total_ns.load() / 1e6;
+            uint64_t calls = call_count.load();
+            double avg_us = calls > 0 ? (total_ns.load() / 1000.0) / calls : 0.0;
+            
+            std::cout << "\n--- C++ Performance Stats ---\n"
+                    << "Total Calls: " << calls << "\n"
+                    << "Total Time:  " << total_ms << " ms\n"
+                    << "Avg Time:    " << avg_us << " us / call\n"
+                    << "-----------------------------\n";
+    }
+    private:
+        std::chrono::high_resolution_clock::time_point start_;
+
+};
 
 
 namespace finelc{
 
-    inline Vector default_zero_vec(int size) {
-        return Vector::Zero(size);
+    inline const Vector& default_zero_vec3() {
+        thread_local static const Vector zero_vec = Vector::Zero(3);
+        return zero_vec;
+    }
+
+    inline const Vector& default_zero_vec(int size) {
+        thread_local static Vector zero_vec;
+        if (zero_vec.size() != size) {
+            zero_vec = Vector::Zero(size);
+        }
+        return zero_vec;
     }
 
     enum class MatrixType: uint8_t{Dense, Sparse};
@@ -77,7 +124,7 @@ namespace finelc{
             }
 
             bool operator==(const NonZeroIterator& other) const {
-                if(done_ == other.done_) return true;
+                if(done_ && other.done_) return true;
                 return dense_ == other.dense_ &&
                     sparse_ == other.sparse_ &&
                     row_ == other.row_ &&
@@ -259,11 +306,25 @@ namespace finelc{
         double tol;
     };
 
+    enum class EigenvalueType: uint8_t{
+        Single,
+        Generalized,
+        };
+
     #ifdef USE_PETSC
         struct PetscObjects{
             KSP ksp;
             PC pc;
             const Mat* Kmat;
+            PetscInt n;
+        };
+    #endif
+
+    #ifdef USE_SLEPC
+        struct SlepcObjects{
+            EPS eps;
+            const Mat* Kmat;
+            const Mat* Mmat;
             PetscInt n;
         };
     #endif
@@ -303,9 +364,39 @@ namespace finelc{
             Matrix solve(const Matrix& rhs);
     };
 
+
+
+    class GenEigen{
+
+        private:
+
+            IterativeProperties prop;
+            Matrix A;
+            Matrix B;
+            int k;
+            double sigma;
+
+        public:
+
+            GenEigen(Matrix A_obj, 
+                Matrix B_obj, 
+                int k,
+                double sigma,
+                IterativeProperties properties_=IterativeProperties{1000,1e-8});
+            ~GenEigen()=default;
+
+            std::vector<EigenPair> solve();
+    };
+
+
+
     #ifdef USE_PETSC
     Vector petsc_solve_direct(const Vector& rhs,
                    PetscObjects& obj);
+    #endif
+
+    #ifdef USE_SLEPC
+    std::vector<EigenPair> slepc_solve_eigen(SlepcObjects& obj, int k, double sigma);
     #endif
     
 
