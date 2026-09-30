@@ -8,9 +8,9 @@
 
 #include <iostream>
 
-#include <Spectra/MatOp/DenseSymMatProd.h>
-#include <Spectra/MatOp/SparseCholesky.h>
-#include <Spectra/SymGEigsSolver.h>
+#include <Spectra/SymGEigsShiftSolver.h>
+#include <Spectra/MatOp/SparseSymShiftSolve.h>
+#include <Spectra/MatOp/SparseSymMatProd.h>
 
 
 namespace finelc{
@@ -128,19 +128,23 @@ namespace finelc{
         const auto& B_sp = B_sparse_mat.get_sparse_data();
 
         // 2. Set up Spectra operators
-        Spectra::SparseSymMatProd<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> op(A_sp);
-        Spectra::SparseCholesky<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> Bop(B_sp);
+        Spectra::SparseSymShiftSolve<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> op(A_sp);
+        Spectra::SparseSymMatProd<double, Eigen::RowMajor, Eigen::Lower, FinelIndex> Bop(B_sp);
 
         int ncv = std::min(static_cast<int>(A_sp.rows()), std::max(2 * k, k + 2));
 
-        Spectra::SymGEigsSolver<decltype(op), 
+        Spectra::SymGEigsShiftSolver<decltype(op), 
                                 decltype(Bop), 
-                                Spectra::GEigsMode::Cholesky> 
-                                geigs(op, Bop, k, ncv);
+                                Spectra::GEigsMode::ShiftInvert> 
+                                geigs(op, Bop, k, ncv, sigma);
 
         // 3. Initialize workspace and solve
         geigs.init();
-        int nconv = geigs.compute(Spectra::SortRule::SmallestMagn, prop.max_iter, prop.tol);
+        int nconv = geigs.compute(
+            Spectra::SortRule::LargestMagn, 
+            prop.max_iter, 
+            prop.tol,
+            Spectra::SortRule::SmallestAlge);
 
         if (geigs.info() != Spectra::CompInfo::Successful || nconv == 0) {
             throw std::runtime_error("Spectra eigenvalue computation failed to converge.");

@@ -68,7 +68,7 @@ namespace finelc{
         }
 
         std::vector<EigenPair> pairs = eigen_solver->solve();
-        return EigenResult(pairs);
+        return EigenResult(pairs,analysis);
         #endif
     }
 
